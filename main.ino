@@ -1,20 +1,24 @@
-/* ------------- MOVIMENTO PATAS VERSÃO 0.1 ------------- 
- *  Desenvolvedores: Daniel Lopes
+/* ------------- MOVIMENTO PATAS VERSAO 0.2 ------------- 
+ *  Desenvolvedores: Daniel Lopes / Enrique Emanuel
  *  ETEC Martin Luther King
- *  São Paulo(SP), Brasil - 2019
+ *  Sao Paulo(SP), Brasil - 2019
  *  Contatos: ddanielssoares@gmail.com
+ *  enriqueemanuelcontato@gmail.com
  *  
  */
 
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 
-Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40);                            //Seleciona o shield com endereço 0x40
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40);                            //Seleciona o shield com endereco 0x40
 
 //Configuração PWM para o servo motor. Ajuste o pulso de acordo com
 //o servo motor que você vai utilizar
 #define SERVOMIN  150                                                                   //Comprimento de pulso minimo
 #define SERVOMAX  600                                                                   //Comprimento de pulso maximo
+
+boolean sensors[6] ={ };                                                                //array pros sensores
+int motores[6] = { };                                                                   //array que define os pinos dos motores
 
 
 void setup() {
@@ -23,8 +27,11 @@ void setup() {
   pwm.setPWMFreq(60);                                                                   //Frequencia de comunicaçao com o driver em 60Hz
   yield();
 
+  for(int i = 0; i<7; i++) pinMode(i , INPUT_PULLUP);                                   //Portas 2 - 8 como entradas com resistor Pullup
+
   
 }
+
 int graus(int x) {                                                                      //Funçao 'graus' que recebe um valor Inteiro armazenado em 'x'                                                            
   int graus = x;                                                                        //Variavel inteira 'graus' recebe o valor de 'x'
   graus = map(graus, 0, 180, SERVOMIN, SERVOMAX);                                       //Regra de 3, para converter graus no valor do PWM
@@ -66,11 +73,157 @@ int frente(int z) {                                                             
   
 }
 
+boolean redArea_MOTOR(int motor){
+  boolean retorno = false;
+      if(!digitalRead(sensors[motor])){
+        retorno = true;
+      }
+  return retorno;
+}
+
+boolean redarea(boolean lado) {
+  
+  boolean estadosensor[6] = { };
+  boolean yon;
+    if (lado == true){
+          for (int k = 0; k<3; k++){
+            estadosensor[k] = redArea_MOTOR(k);
+    }
+       if (estadosensor[0] && estadosensor[1] && estadosensor[2]){
+       yon = true;
+       } else{
+          yon = false;
+       }
+    } else if(lado == false){
+          for (int k = 3; k<6; k++){
+            estadosensor[k] = redArea_MOTOR(k);
+          }
+       if (estadosensor[3] && estadosensor[4] && estadosensor[5]){
+       yon = true;
+       } else{
+          yon = false;
+          }
+      }    
+return yon;  
+} 
+
+void runPart(boolean parte){
+  if(parte){
+    for (int servo = 0; servo<3 ; servo++){
+        pwm.setPWM(servo, 0, graus(180));   
+    }
+  } else {
+    for (int servo = 3; servo<6 ; servo++){
+        pwm.setPWM(servo, 0, graus(180));   
+    }
+  }
+}
+
+void stopleg(int parte){
+  if(parte == 0) {
+    for (int servo = 0; servo<3 ; servo++){
+        pwm.setPWM(servo, 0, graus(76));   
+   }
+  } else if(parte == 1){
+      for (int servo = 3; servo<6 ; servo++){
+        pwm.setPWM(servo, 0, graus(76));   
+      }
+  } else if(parte == 2){
+      for (int servo = 0; servo<6 ; servo++){
+        pwm.setPWM(servo, 0, graus(76));   
+      }
+  }
+}
+
+void go_out_redarea(boolean lado){
+  //Primeiramente roda todos os motores e mantém esse estado até que os sensores sejam ativados
+  if(lado) {
+    
+      do {
+        runPart(0);
+      }while (!redarea(0));
+      
+  } else if(!lado) {
+    
+      do {
+        runPart(1);
+      }while (!redarea(1));
+      
+  }
+  //Quando todos os motores entrarem na área dos sensores, todos eles são parados
+     stopleg(2); 
+}
+
+
+
+void front() {                                                                     
+    //Fun?ao 'frente' que movimenta o robo
+    //Se os motores 0 a 2 e 3 a 5 estão com o mesmo estado, então eles começam a girar juntos
+    //senão, eles performam o movimento do robô
+    
+  if (redarea(0) == redarea(1)){
+    
+    if (!redarea(0)) go_out_redarea(0);
+    if (!redarea(1)) go_out_redarea(1);
+  
+  } else {
+      if (redarea(0)){
+        if (redarea(1)){
+          girarlado(false, true);
+          girarlado(true, false);
+        }else{
+          girarlado(false, false);
+          girarlado(true, true);
+        }
+      } else{
+          girarlado(false, true);
+          girarlado(true, false);
+      }
+  }
+
+}
+
+void girarlado(boolean lado, boolean intensidade){
+
+  if (lado == false && intensidade == true){
+    //lado A com velocidade máxima
+    for (int motor = 0; motor<3 ; motor++){
+          //se o motor 2 for selecionado (o que se encontra do lado oposto aos outros 2, girar ele ao contrário
+          //isso é para manter o giro na mesma direção na hora que for andar
+          if (motor == 2 ){
+            pwm.setPWM(motor, 0, graus(0));   
+          }
+          pwm.setPWM(motor, 0, graus(180));
+    }
+  }else if (lado == false && intensidade == false){
+      for (int motor = 0; motor<3 ; motor++){
+          if (motor == 2 ){
+            pwm.setPWM(motor, 0, graus(50));   
+          }
+          pwm.setPWM(motor, 0, graus(90));
+      }   
+  }else if (lado == true && intensidade == true){
+    //lado B com velocidade máxima
+    for (int motor = 3; motor<6 ; motor++){
+          //se o motor 4 for selecionado (o que se encontra do lado oposto aos outros dois, girar ele ao contrário
+          //isso e para manter o giro na mesma direção na hora que for andar
+          if (motor == 4){
+            pwm.setPWM(motor, 0, graus(180));   
+          }
+          pwm.setPWM(motor, 0, graus(0));
+    }
+  } else if (lado == true && intensidade == false){
+      for (int motor = 3; motor<6 ; motor++){
+          if (motor == 4){
+            pwm.setPWM(motor, 0, graus(90));   
+          }
+          pwm.setPWM(motor, 0, graus(50));
+      }   
+  }
+}
 
 void loop() {
-  for(int n = 0; n = 1; n++) {                                                          //Laço para solicitar o avanço duas vezes, que sera executado infinitamente pelo void loop
-    frente(n);                                                                          //Funçao que avanaça o robo recebe o valor que alcança no maximo o numero 1, como contador de vezes
-  }
-  
+  front();
+  delay(200);
+  stopleg(2);
 }
- 
