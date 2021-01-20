@@ -1,4 +1,4 @@
-/* ------------- MOVIMENTO PATAS VERSAO 0.3 ------------- 
+/* ------------- MOVIMENTO PATAS VERSAO 0.4 ------------- 
  *  Desenvolvedores: Daniel Lopes / Enrique Emanuel
  *  ETEC Martin Luther King
  *  Sao Paulo(SP), Brasil - 2019
@@ -20,20 +20,41 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40);                    
 #define SERVOMAX  600                                                                   //Comprimento de pulso maximo
 
 boolean sensors[6] ={ };                                                               //array pros sensores
-int motores[6] = {2, 3, 4, 5, 6, 7 };                                                                    //array que define os pinos dos motores
+int     motores[6] = {2, 3, 4, 5, 6, 7 };                                              //array que define os pinos dos motores
 
+//Declarando Funções que serão utilizadas:
+int     graus(int x);
+void    giroPata(int motor);
+void    posGiroPata(int motor, int x);
+void    frente(int z);
+boolean redArea_MOTOR(int motor);
+boolean redarea(boolean lado);
+void    runPart(boolean parte);
+void    stopleg(int parte);
+void    go_out_redarea(boolean lado);
+void    front();
+void    girarlado(boolean lado, boolean intensidade);
+void    toSync_legs(boolean parte);
 
 void setup() {
 
   Serial.begin(9600);
   pwm.begin();                                                                          //Inicia o controle dos servos(PWM)
-  pwm.setPWMFreq(60);                                                                   //Frequencia de comunicaçao com o driver em 60Hz
+  pwm.setPWMFreq(50);                                                                   //Frequencia de comunicaçao com o driver em 50Hz
   yield();
 
   for(int i = 2; i<8; i++) pinMode(motores[i] , INPUT_PULLUP);                                   //Portas 2 - 8 como entradas com resistor Pullup
+    
+}
 
+void loop() {
+  
+  front();
+  delay(1000);
   
 }
+
+
 
 int graus(int x) {                                                                      //Funçao 'graus' que recebe um valor Inteiro armazenado em 'x'                                                            
   int graus = x;                                                                        //Variavel inteira 'graus' recebe o valor de 'x'
@@ -41,6 +62,7 @@ int graus(int x) {                                                              
   
   return graus;                                                                         //Retorna como resultado da funçao, o valor da variavel 'graus'
 }
+
 void giroPata(int motor) {                                                              //Versao A do giro do motor, recebe um valor inteiro indicando o motor
   const int z = 1000;                                                                   //Valor constante do intervalo para o motor girar em torno de 330º                                                    
       
@@ -50,6 +72,7 @@ void giroPata(int motor) {                                                      
       delay(3);                                                                         //Intervalo apenas para sincronia
   
 }
+
 void posGiroPata(int motor, int x) {                                                    //Funçao que posiciona os motores localizados em 330º para 360º, recebe numero do motor e valor 'x')
   
       pwm.setPWM(motor, 0, graus(180));                                                 //Seta o (Motor, valor constante, em 180º[velocidade maxima]) 
@@ -57,7 +80,8 @@ void posGiroPata(int motor, int x) {                                            
       pwm.setPWM(motor, 0, graus(76));                                                  //Seta o (Motor, valor constante, em 76º[parado])
       delay(3);                                                                         //Intervalo apenas para sincronia
 }
-int frente(int z) {                                                                     //Funçao 'frente' que movimenta o robo, recebe um valor 'z' de um contador                                                               
+
+void frente(int z) {                                                                     //Funçao 'frente' que movimenta o robo, recebe um valor 'z' de um contador                                                               
   int x;                                                                                //Variavel 'x' que armazenara o valor do intervalo para o motor completar 360º 
   if (z == 0)  {                                                                        //Caso a funçao tenha sido executado uma vez ela possuira o valor '0'
     x = 220;                                                                            //Variavel 'x' recebe o valor de 220(milisegundos para 360º)
@@ -78,7 +102,11 @@ int frente(int z) {                                                             
 
 boolean redArea_MOTOR(int motor){
   boolean retorno = false;
-  for(int i = 2; i<8; i++) sensors[i] = digitalRead(motores[i]);
+  int z = 0;
+  for(int i = 2; i<8; i++) {
+  sensors[z] = digitalRead(motores[i]);
+  z++;
+  }
       if(!sensors[motor]){
         retorno = true;
       }
@@ -176,8 +204,6 @@ void go_out_redarea(boolean lado){
      stopleg(2); 
 }
 
-
-
 void front() {                                                                     
     //Fun?ao 'frente' que movimenta o robo
     //Se os motores 0 a 2 e 3 a 5 estão com o mesmo estado, então eles começam a girar juntos
@@ -230,7 +256,6 @@ void front() {
           girarlado(false, false);
       }
   }
-
 }
 
 void girarlado(boolean lado, boolean intensidade){
@@ -299,8 +324,44 @@ void girarlado(boolean lado, boolean intensidade){
       }   
   }
 }
-
-void loop() {
-  front();
-  delay(1000);
+void toSync_legs(boolean parte){
+  if(!parte) {
+    int z = 0;
+      for(int i = 2; i<8; i++) {
+        sensors[z] = digitalRead(motores[i]);
+        z++;
+      }
+      if(sensors[0] == sensors[1] && sensors[1] == sensors[2] && sensors[2] == sensors[0]){
+        return 0;
+      } else {
+          do {
+            Serial.println("Girando A Para área vermelha");
+            pwm.setPWM(0, 0, graus(180));
+            pwm.setPWM(1, 0, graus(180));
+            pwm.setPWM(2, 0, graus(180));
+          }while (!redarea(0));
+            Serial.println("Área vermelha encontrada");
+      }
+  stopleg(2);
+}
+  if(parte) {
+   int z = 0;
+      for(int i = 2; i<8; i++) {
+        sensors[z] = digitalRead(motores[i]);
+        z++;
+      }
+      if(sensors[3] == sensors[4] && sensors[4] == sensors[5] && sensors[5] == sensors[3]){
+        return 0;
+      } else {
+          do {
+            Serial.println("Girando B Para área vermelha");
+            pwm.setPWM(3, 0, graus(180));
+            pwm.setPWM(4, 0, graus(180));
+            pwm.setPWM(5, 0, graus(180));
+          }while (!redarea(0));
+            Serial.println("Área vermelha encontrada");
+      }
+  stopleg(2);
+    
+  }
 }
