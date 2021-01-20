@@ -1,4 +1,4 @@
-/* ------------- MOVIMENTO PATAS VERSAO 0.5 ------------- 
+/* ------------- MOVIMENTO PATAS VERSAO 0.6 ------------- 
  *  Desenvolvedores: Daniel Lopes / Enrique Emanuel
  *  ETEC Martin Luther King
  *  Sao Paulo(SP), Brasil - 2019
@@ -43,14 +43,16 @@ void setup() {
   pwm.setPWMFreq(50);                                                                   //Frequencia de comunicaçao com o driver em 50Hz
   yield();
 
-  for(int i = 2; i<8; i++) pinMode(motores[i] , INPUT_PULLUP);                                   //Portas 2 - 8 como entradas com resistor Pullup
+  for(int i = 0; i<7; i++) pinMode(motores[i] , INPUT_PULLUP);                                   //Portas 2 - 8 como entradas com resistor Pullup
     
 }
 
 void loop() {
   
   front();
-  delay(1000);
+  //delay(1000);
+  Serial.println("-----LOOP-----");
+  //delay(1000);
   
 }
 
@@ -102,33 +104,38 @@ void frente(int z) {                                                            
 
 boolean redArea_MOTOR(int motor){ 
   boolean retorno = false; 
-    for(int i = 0; i<6; i++) { 
-      sensors[i] = digitalRead(motores[i]); 
-    } 
+    sensors[0] = digitalRead(2);
+    sensors[1] = digitalRead(3);
+    sensors[2] = digitalRead(4);
+    sensors[3] = digitalRead(5);
+    sensors[4] = digitalRead(6);
+    sensors[5] = digitalRead(7);
     if(!sensors[motor]){ 
       retorno = true; 
-    } 
+    } else {
+      retorno = false;
+    }
  return retorno;
 }
 
 boolean redarea(boolean lado) {
   
   boolean estadosensor[6] = { };
+  estadosensor[0] = redArea_MOTOR(0);
+  estadosensor[1] = redArea_MOTOR(1);
+  estadosensor[2] = redArea_MOTOR(2);
+  estadosensor[3] = redArea_MOTOR(3);
+  estadosensor[4] = redArea_MOTOR(4);
+  estadosensor[5] = redArea_MOTOR(5);
   boolean yon;
     if (lado == true){
-          for (int k = 0; k<3; k++){
-            estadosensor[k] = redArea_MOTOR(k);
-    }
-       if (estadosensor[0] && estadosensor[1] && estadosensor[2]){
+       if (estadosensor[0] == 1 && estadosensor[1] == 1 && estadosensor[2] == 1){
        yon = true;
        } else{
           yon = false;
        }
     } else if(lado == false){
-          for (int k = 3; k<6; k++){
-            estadosensor[k] = redArea_MOTOR(k);
-          }
-       if (estadosensor[3] && estadosensor[4] && estadosensor[5]){
+       if (estadosensor[3] == 1 && estadosensor[4] == 1 && estadosensor[5] == 1){
        yon = true;
        } else{
           yon = false;
@@ -207,7 +214,7 @@ void front() {
     //Se os motores 0 a 2 e 3 a 5 estão com o mesmo estado, então eles começam a girar juntos
     //senão, eles performam o movimento do robô
     
-  if (redarea(0) == redarea(1)){
+  if (redarea(0) == 0 && redarea(1) == 0){
     
     if (!redarea(0)) {
       go_out_redarea(0);
@@ -215,7 +222,14 @@ void front() {
     if (!redarea(1)) {
       go_out_redarea(1);
     }
-  
+  } else if(redarea(0) == 1 && redarea(1) == 1) {
+    if (!redarea(0)) {
+      go_out_redarea(0);
+    }
+    if (!redarea(1)) {
+      go_out_redarea(1);
+    }
+
   } else {
       if (redarea(0)){
         if (redarea(1)){
@@ -363,6 +377,7 @@ void toSync_legs(boolean parte){
       if(sensors[3] == sensors[4] && sensors[4] == sensors[5] && sensors[5] == sensors[3]){
         Serial.print(".");
       } else {
+        
           do {
             Serial.println("Girando B Para área vermelha");
             pwm.setPWM(3, 0, graus(180));
