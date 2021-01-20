@@ -1,4 +1,4 @@
-/* ------------- MOVIMENTO PATAS VERSAO 1.0 ------------- 
+/* ------------- MOVIMENTO PATAS VERSAO 1.0.1 ------------- 
  *  Desenvolvedores: Daniel Lopes / Enrique Emanuel
  *  ETEC Martin Luther King
  *  Sao Paulo(SP), Brasil - 2019
@@ -165,16 +165,10 @@ return yon;
 void runPart(boolean parte){
   if(parte){
     for (int servo = 0; servo<3 ; servo++){
-        Serial.print("Servo: ");
-        Serial.print(servo);
-        Serial.println(" girando!");
         pwm.setPWM(servo, 0, graus(180));   
     }
   } else {
     for (int servo = 3; servo<6 ; servo++){
-        Serial.print("Servo: ");
-        Serial.print(servo);
-        Serial.println(" girando!");
         pwm.setPWM(servo, 0, graus(180));   
     }
   }
@@ -183,23 +177,14 @@ void runPart(boolean parte){
 void stopleg(int parte){
   if(parte == 0) {
     for (int servo = 0; servo<3 ; servo++){
-        Serial.println("Servo: ");
-        Serial.print(servo);
-        Serial.println("parado!");
         pwm.setPWM(servo, 0, graus(76));   
    }
   } else if(parte == 1){
       for (int servo = 3; servo<6 ; servo++){
-        Serial.println("Servo: ");
-        Serial.print(servo);
-        Serial.println("parado!");
         pwm.setPWM(servo, 0, graus(76));   
       }
   } else if(parte == 2){
       for (int servo = 0; servo<6 ; servo++){
-        Serial.println("Servo: ");
-        Serial.print(servo);
-        Serial.println("parado!");
         pwm.setPWM(servo, 0, graus(76));   
       }
   }
@@ -213,7 +198,6 @@ void go_out_redarea(boolean lado){
         Serial.println("Girando A Para área vermelha");
         runPart(0);
       }while (!redarea(0));
-      Serial.println("Área vermelha encontrada");
       
   } else if(!lado) {
     
@@ -221,7 +205,6 @@ void go_out_redarea(boolean lado){
         Serial.println("Girando B Para área vermelha");
         runPart(1);
       }while (!redarea(1));
-      Serial.println("Área vermelha encontrada");
   }
   //Quando todos os motores entrarem na área dos sensores, todos eles são parados
      stopleg(2); 
@@ -251,38 +234,29 @@ void front() {
   } else {
       if (redarea(0)){
         if (redarea(1)){
-          Serial.println("Lado A/vel: MAX");
           girarlado(false, true, true);
             do {
-              Serial.println("Lado B/vel: MIN");
               girarlado(true, false, true); 
             } while(!redarea(0));
         }else{
-          Serial.println("Lado B/vel: MAX");
           girarlado(true, true, true);
             do {
-              Serial.println("Lado A/vel: MIN");
               girarlado(false, false, true);    
             } while(!redarea(1));
         }
       } else{
-          Serial.println("Lado A/vel: MAX");
           girarlado(false, true, true);
             do {
-              Serial.println("Lado B/vel: MIN");
               girarlado(true, false, true);
             } while(!redarea(0));
       }
       if (redarea(1)){
         if (redarea(0)){
-          Serial.println("Lado B/vel: MAX");
           girarlado(true, true, true);
             do {
-              Serial.println("Lado A/vel: MIN");
               girarlado(false, false, true);
           } while(!redarea(1));
         }else{
-          Serial.println("Lado A/vel: MAX");
           girarlado(false, true, true);
             do {
               Serial.println("Lado B/vel: MIN");
@@ -290,10 +264,8 @@ void front() {
             } while(!redarea(0));
         }
       } else{
-          Serial.println("Lado B/vel: MAX");
           girarlado(true, true, true);
             do {
-              Serial.println("Lado A/vel: MIN");
               girarlado(false, false, true); 
             } while(!redarea(1));          
       }
@@ -324,49 +296,37 @@ void back() {
   } else {
       if (redarea(0)){
         if (redarea(1)){
-          Serial.println("Lado A/vel: MAX");
           girarlado(false, true, false);
             do {
-              Serial.println("Lado B/vel: MIN");
               girarlado(true, false, true); 
             } while(!redarea(0));
         }else{
-          Serial.println("Lado B/vel: MAX");
           girarlado(true, true, true);
             do {
-              Serial.println("Lado A/vel: MIN");
               girarlado(false, false, false);    
             } while(!redarea(1));
         }
       } else{
-          Serial.println("Lado A/vel: MAX");
           girarlado(false, true, false);
             do {
-              Serial.println("Lado B/vel: MIN");
               girarlado(true, false, true);
             } while(!redarea(0));
       }
       if (redarea(1)){
         if (redarea(0)){
-          Serial.println("Lado B/vel: MAX");
           girarlado(true, true, true);
             do {
-              Serial.println("Lado A/vel: MIN");
               girarlado(false, false, false);
           } while(!redarea(1));
         }else{
-          Serial.println("Lado A/vel: MAX");
           girarlado(false, true, false);
             do {
-              Serial.println("Lado B/vel: MIN");
               girarlado(true, false, true);
             } while(!redarea(0));
         }
       } else{
-          Serial.println("Lado B/vel: MAX");
           girarlado(true, true, true);
             do {
-              Serial.println("Lado A/vel: MIN");
               girarlado(false, false, false); 
             } while(!redarea(1));          
       }
@@ -381,28 +341,16 @@ void girarlado(boolean lado, boolean intensidade, boolean sentido){
           //se o motor 2 for selecionado (o que se encontra do lado oposto aos outros 2, girar ele ao contrário
           //isso é para manter o giro na mesma direção na hora que for andar
           if (motor == 2 ){
-            Serial.print("Motor: ");
-            Serial.print(motor);
-            Serial.println(" INVERTIDO");
             pwm.setPWM(motor, 0, graus(0));   
           } else {
-          Serial.print("Motor:");
-          Serial.print(motor);
-          Serial.println(" Girando Rápido horário");
           pwm.setPWM(motor, 0, graus(180));
           }
     }
   }else if (lado == false && intensidade == false && sentido == true){
       for (int motor = 0; motor<3 ; motor++){
           if (motor == 2 ){
-            Serial.print("Motor: ");
-            Serial.print(motor);
-            Serial.println(" INVERTIDO");
             pwm.setPWM(motor, 0, graus(50));   
           } else{
-          Serial.print("Motor: ");
-          Serial.print(motor);
-          Serial.println(" Girando Devagar horário");
           pwm.setPWM(motor, 0, graus(90));
           }
       }   
@@ -412,28 +360,16 @@ void girarlado(boolean lado, boolean intensidade, boolean sentido){
           //se o motor 4 for selecionado (o que se encontra do lado oposto aos outros dois, girar ele ao contrário
           //isso e para manter o giro na mesma direção na hora que for andar
           if (motor == 4){
-            Serial.print("Motor: ");
-            Serial.print(motor);
-            Serial.println(" INVERTIDO");
             pwm.setPWM(motor, 0, graus(180));   
           } else{
-          Serial.print("Motor: ");
-          Serial.print(motor);
-          Serial.println(" Girando Rápido anti-horário");
           pwm.setPWM(motor, 0, graus(0));
           }
     }
   } else if (lado == true && intensidade == false && sentido == true){
       for (int motor = 3; motor<6 ; motor++){
           if (motor == 4){
-            Serial.print("Motor: ");
-            Serial.print(motor);
-            Serial.println(" INVERTIDO");
             pwm.setPWM(motor, 0, graus(90));   
           } else {
-          Serial.print("Motor: ");
-          Serial.print(motor);
-          Serial.println(" Girando Devagar anti-horário");
           pwm.setPWM(motor, 0, graus(50));
           }
       }   
@@ -445,28 +381,16 @@ void girarlado(boolean lado, boolean intensidade, boolean sentido){
           //se o motor 2 for selecionado (o que se encontra do lado oposto aos outros 2, girar ele ao contrário
           //isso é para manter o giro na mesma direção na hora que for andar
           if (motor == 2 ){
-            Serial.print("Motor: ");
-            Serial.print(motor);
-            Serial.println(" INVERTIDO");
             pwm.setPWM(motor, 0, graus(180));   
           } else {
-          Serial.print("Motor:");
-          Serial.print(motor);
-          Serial.println(" Girando Rápido horário");
           pwm.setPWM(motor, 0, graus(0));
           }
     }
   }else if (lado == false && intensidade == false && sentido == false){
       for (int motor = 0; motor<3 ; motor++){
           if (motor == 2 ){
-            Serial.print("Motor: ");
-            Serial.print(motor);
-            Serial.println(" INVERTIDO");
             pwm.setPWM(motor, 0, graus(90));   
           } else{
-          Serial.print("Motor: ");
-          Serial.print(motor);
-          Serial.println(" Girando Devagar horário");
           pwm.setPWM(motor, 0, graus(50));
           }
       }   
@@ -476,28 +400,16 @@ void girarlado(boolean lado, boolean intensidade, boolean sentido){
           //se o motor 4 for selecionado (o que se encontra do lado oposto aos outros dois, girar ele ao contrário
           //isso e para manter o giro na mesma direção na hora que for andar
           if (motor == 4){
-            Serial.print("Motor: ");
-            Serial.print(motor);
-            Serial.println(" INVERTIDO");
             pwm.setPWM(motor, 0, graus(0));   
           } else{
-          Serial.print("Motor: ");
-          Serial.print(motor);
-          Serial.println(" Girando Rápido anti-horário");
           pwm.setPWM(motor, 0, graus(180));
           }
     }
   } else if (lado == true && intensidade == false && sentido == false){
       for (int motor = 3; motor<6 ; motor++){
           if (motor == 4){
-            Serial.print("Motor: ");
-            Serial.print(motor);
-            Serial.println(" INVERTIDO");
             pwm.setPWM(motor, 0, graus(50));   
           } else {
-          Serial.print("Motor: ");
-          Serial.print(motor);
-          Serial.println(" Girando Devagar anti-horário");
           pwm.setPWM(motor, 0, graus(90));
           }
       }   
@@ -515,12 +427,10 @@ void toSync_legs(boolean parte){
         Serial.print(".");
       } else {
           do {
-            Serial.println("Girando A Para área vermelha");
             pwm.setPWM(0, 0, graus(180));
             pwm.setPWM(1, 0, graus(180));
             pwm.setPWM(2, 0, graus(180));
           }while (!redarea(0));
-            Serial.println("Área vermelha encontrada");
       }
   stopleg(2);
 }
@@ -535,12 +445,10 @@ void toSync_legs(boolean parte){
       } else {
         
           do {
-            Serial.println("Girando B Para área vermelha");
             pwm.setPWM(3, 0, graus(180));
             pwm.setPWM(4, 0, graus(180));
             pwm.setPWM(5, 0, graus(180));
           }while (!redarea(0));
-            Serial.println("Área vermelha encontrada");
       }
   stopleg(2);
     
