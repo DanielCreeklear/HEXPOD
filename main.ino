@@ -1,4 +1,4 @@
-/* ------------- MOVIMENTO PATAS VERSAO 0.4 ------------- 
+/* ------------- MOVIMENTO PATAS VERSAO 0.5 ------------- 
  *  Desenvolvedores: Daniel Lopes / Enrique Emanuel
  *  ETEC Martin Luther King
  *  Sao Paulo(SP), Brasil - 2019
@@ -100,17 +100,15 @@ void frente(int z) {                                                            
   
 }
 
-boolean redArea_MOTOR(int motor){
-  boolean retorno = false;
-  int z = 0;
-  for(int i = 2; i<8; i++) {
-  sensors[z] = digitalRead(motores[i]);
-  z++;
-  }
-      if(!sensors[motor]){
-        retorno = true;
-      }
-  return retorno;
+boolean redArea_MOTOR(int motor){ 
+  boolean retorno = false; 
+    for(int i = 0; i<6; i++) { 
+      sensors[i] = digitalRead(motores[i]); 
+    } 
+    if(!sensors[motor]){ 
+      retorno = true; 
+    } 
+ return retorno;
 }
 
 boolean redarea(boolean lado) {
@@ -223,37 +221,49 @@ void front() {
         if (redarea(1)){
           Serial.println("Lado A/vel: MAX");
           girarlado(false, true);
-          Serial.println("Lado B/vel: MIN");
-          girarlado(true, false);
+            do {
+              Serial.println("Lado B/vel: MIN");
+              girarlado(true, false); 
+            } while(!redarea(0));
         }else{
-          Serial.println("Lado A/vel: MIN");
-          girarlado(false, false);
           Serial.println("Lado B/vel: MAX");
           girarlado(true, true);
+            do {
+              Serial.println("Lado A/vel: MIN");
+              girarlado(false, false);    
+            } while(!redarea(1));
         }
       } else{
           Serial.println("Lado A/vel: MAX");
           girarlado(false, true);
-          Serial.println("Lado B/vel: MIN");
-          girarlado(true, false);
+            do {
+              Serial.println("Lado B/vel: MIN");
+              girarlado(true, false);
+            } while(!redarea(0));
       }
       if (redarea(1)){
         if (redarea(0)){
           Serial.println("Lado B/vel: MAX");
           girarlado(true, true);
-          Serial.println("Lado A/vel: MIN");
-          girarlado(false, false);
+            do {
+              Serial.println("Lado A/vel: MIN");
+              girarlado(false, false);
+          } while(!redarea(1));
         }else{
-          Serial.println("Lado B/vel: MIN");
-          girarlado(true, false);
           Serial.println("Lado A/vel: MAX");
           girarlado(false, true);
+            do {
+              Serial.println("Lado B/vel: MIN");
+              girarlado(true, false);
+            } while(!redarea(0));
         }
       } else{
           Serial.println("Lado B/vel: MAX");
           girarlado(true, true);
-          Serial.println("Lado A/vel: MIN");
-          girarlado(false, false);
+            do {
+              Serial.println("Lado A/vel: MIN");
+              girarlado(false, false); 
+            } while(!redarea(1));          
       }
   }
 }
@@ -351,7 +361,7 @@ void toSync_legs(boolean parte){
         z++;
       }
       if(sensors[3] == sensors[4] && sensors[4] == sensors[5] && sensors[5] == sensors[3]){
-        return 0;
+        Serial.print(".");
       } else {
           do {
             Serial.println("Girando B Para área vermelha");
