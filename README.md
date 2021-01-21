@@ -3,7 +3,6 @@ ETEC Martin Luther King - Orientador: Professor Mestre Engenheiro Paulo Roberto 
 
 [Badge]("ETEC")[Badge]("Mecatrônica")[Badge]("Hexápode")
 
-![nome do fluxo de trabalho de exemplo](https://github.com/actions/hello-world/workflows/Greet%20Everyone/badge.svg)
 > Status do Projeto: Concluido :heavy_check_mark:
 
 ![Foto do HEXPOD no seu ultimo dia de teste!](./HEXPOD.png "Foto do HEXPOD no seu ultimo dia de teste!")
@@ -24,7 +23,9 @@ Serial.print("ESTOU VIVO!");
 :trophy: Controle com 4 botões e 1 analógico via Rádio Frequência
 
 :trophy: Sensor Ultrassônico para navegação autônoma
+## Linguagens e libs utilizadas :books:
 
+- [C/C++ (Arduino)](https://www.arduino.cc/)
 
 
 
