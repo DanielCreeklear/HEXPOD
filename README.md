@@ -1,7 +1,7 @@
 # Trabalho de Conclusão de Curso - Técnico em Mecatrônica - 1° Semestre, 2019. _(Este repositório foi reorganizado em 2021)_
 ETEC Martin Luther King - Orientador: Professor Mestre Engenheiro Paulo Roberto Murguer Nogueira
 
-[![Generic badge](https://img.shields.io/badge/<Mecatrônica>-<ETEC>-<RED>.svg)](https://shields.io/)
+[![Generic badge](https://img.shields.io/badge/<ETEC>-<Mecatrônica>-<RED>.svg)](https://shields.io/)
 > Status do Projeto: Concluido :heavy_check_mark:
 
 ![Foto do HEXPOD no seu ultimo dia de teste!](./HEXPOD.png "Foto do HEXPOD no seu ultimo dia de teste!")
