@@ -1,4 +1,4 @@
-/* ------------- MOVIMENTO PATAS VERSAO 2.3.2 ------------- 
+/* ------------- MOVIMENTO PATAS VERSAO 2.3.3 ------------- 
  *  Desenvolvedores: Daniel Lopes / Enrique Emanuel
  *  ETEC Martin Luther King
  *  Sao Paulo(SP), Brasil - 2019
@@ -7,13 +7,13 @@
  *  
  */
 //Bibliotecas
+#include <VirtualWire.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 #include <SoftwareSerial.h>
 
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40);  //Seleciona o shield com endereco 0x40
-//SoftwareSerial Bluetooth(10, 11); // RX, TX
 
 //Configuração PWM para o servo motor.
 #define SERVOMIN  150  //Comprimento de pulso minimo
@@ -27,25 +27,34 @@ uint8_t motores[6] = {2, 3, 4, 5, 6, 7 }; //array que define os pinos dos motore
 #define sensorD 5
 #define sensorE 6
 #define sensorF 7
-char bluetooth;
+#define pinRF  12
+#define pinLED 13
+struct tipoPacote {
+  char valor1;
+};
+tipoPacote pacote; 
+uint8_t buf[sizeof(pacote)];
+uint8_t buflen = sizeof(pacote);
+
 boolean set_p;
 //Delays para movimento das patas
   //4V:
-  uint8_t delay1 = 900; //Delay para iniciar o lado B
-  uint8_t delay2 = 100; //Delay para parar o lado A
+  #define delay1 1350 //Delay para iniciar o lado B
+  #define delay2 100 //Delay para parar o lado A
   //5V:
-  uint8_t delay3 = 900; //Delay para iniciar o lado B
-  uint8_t delay4 = 100; //Delay para parar o lado A
+  #define delay3 900 //Delay para iniciar o lado B
+  #define delay4 100 //Delay para parar o lado A
   //6V:
-  uint8_t delay5 = 900; //Delay para iniciar o lado B
-  uint8_t delay6 = 100; //Delay para parar o lado A
+  #define delay5 700 //Delay para iniciar o lado B
+  #define delay6 100 //Delay para parar o lado A
   //7V:
-  uint8_t delay7 = 900; //Delay para iniciar o lado B
-  uint8_t delay8 = 100; //Delay para parar o lado A
+  #define delay7 600 //Delay para iniciar o lado B
+  #define delay8 100 //Delay para parar o lado A
 
 //Declarando Funções que serão utilizadas:
+void front_auto();
 void bateria();
-uint8_t graus(uint8_t x);
+int  graus(int x);
 void front();
 void right();  
 void left();
@@ -57,26 +66,29 @@ void setup() {
   pwm.begin(); //Inicia o controle dos servos(PWM)
   pwm.setPWMFreq(50); //Frequencia de comunicaçao com o driver em 50Hz
 
-  for(uint8_t i = 0; i<7; i++) pinMode(motores[i] , INPUT_PULLUP); //Portas 2 - 8 como entradas com resistor Pullup
+  for(int i = 0; i<7; i++) pinMode(motores[i] , INPUT_PULLUP); //Portas 2 - 8 como entradas com resistor Pullup
   set_p = 0;
-  while(!Serial.available()){
-  
-  }
-  Serial.write("G");
+
+  vw_set_rx_pin(pinRF);
+  vw_setup(2000);   
+  vw_rx_start();
 }
 
 void loop() {
-  front();
-  right();
-/*   //Controle-----------------------------------------
+   //Controle-----------------------------------------
   if(!set_p) {
     parado(0);
     set_p = 1;
   }
-  while(Serial.available()){
-  bluetooth = Serial.read();
-    switch (bluetooth) {
+  if (vw_have_message()){
+   vw_get_message(buf, &buflen);   
+   memcpy(&pacote,&buf,buflen);
+    switch (pacote.valor1) {
           case 'W':
+            front();
+          break;
+
+          case 'Z':
             front();
           break;
           
@@ -88,12 +100,11 @@ void loop() {
             right();
           break;
   
-          case '9':
+          case 'C':
             parado(0);
           break;                   
     }
   }
-*///--------------------------------------------------
 }
 
 void front(){     //Funcao que faz o Hexpod andar para frente
@@ -108,7 +119,8 @@ void front(){     //Funcao que faz o Hexpod andar para frente
   pwm.setPWM(0, 0, graus(51));      //Motor 0 parado
   pwm.setPWM(4, 0, graus(51));      //Motor 4 parado
   pwm.setPWM(2, 0, graus(51));      //Motor 2 parado
-  delay(delay1);                       //Delay para parar o lado B
+  int a = delay1 - delay2;
+  delay(a);                       //Delay para parar o lado B
   pwm.setPWM(3, 0, graus(51));      //Motor 3 parado
   pwm.setPWM(1, 0, graus(51));      //Motor 1 parado
   pwm.setPWM(5, 0, graus(51));      //Motor 5 parado
@@ -128,7 +140,8 @@ void right(){
   pwm.setPWM(0, 0, graus(51));      //Motor 0 parado
   pwm.setPWM(4, 0, graus(51));      //Motor 4 parado
   pwm.setPWM(2, 0, graus(51));      //Motor 2 parado
-  delay(delay1);                       //Delay para parar o lado B
+  int a = delay1 - delay2;
+  delay(a);   
   pwm.setPWM(3, 0, graus(51));      //Motor 3 parado
   pwm.setPWM(1, 0, graus(51));      //Motor 1 parado
   pwm.setPWM(5, 0, graus(51));      //Motor 5 parado
@@ -148,7 +161,8 @@ void left(){     //Funcao que faz o Hexpod andar para frente
   pwm.setPWM(0, 0, graus(51));      //Motor 0 parado
   pwm.setPWM(4, 0, graus(51));      //Motor 4 parado
   pwm.setPWM(2, 0, graus(51));      //Motor 2 parado
-  delay(delay1);                       //Delay para parar o lado B
+  int a = delay1 - delay2;
+  delay(a);   
   pwm.setPWM(3, 0, graus(51));      //Motor 3 parado
   pwm.setPWM(1, 0, graus(51));      //Motor 1 parado
   pwm.setPWM(5, 0, graus(51));      //Motor 5 parado
@@ -410,8 +424,8 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
   }//end if
 }//end void parado
   
-uint8_t graus(uint8_t x) { //Funçao 'graus' que recebe um valor Inteiro armazenado em 'x'                                                            
-  uint8_t graus = x; //Variavel inteira 'graus' recebe o valor de 'x'
+int graus(int x) { //Funçao 'graus' que recebe um valor Inteiro armazenado em 'x'                                                            
+  int graus = x; //Variavel inteira 'graus' recebe o valor de 'x'
   graus = map(graus, 0, 180, SERVOMIN, SERVOMAX); //Regra de 3, para converter graus no valor do PWM
   
   return graus; //Retorna como resultado da funcao, o valor da variavel 'graus'
@@ -423,8 +437,9 @@ void bateria(){
   bateria = map(bateria, 0, 5, 0, 8.4);
   if(bateria < 6.1) {
     Serial.write("U");
-    Serial.println("Bateria fraca!");
   }
-  Serial.println("Bateria: ");
-  Serial.print(bateria);
+}
+
+void front_auto(){
+  
 }
