@@ -1,23 +1,42 @@
-/* ------------- MOVIMENTO PATAS VERSAO 2.4.1 ------------- 
+/* ------------- MOVIMENTO PATAS VERSAO 2.4.2 -------------  
  *  Desenvolvedores: Daniel Lopes / Enrique Emanuel
  *  ETEC Martin Luther King
  *  Sao Paulo(SP), Brasil - 2019
  *  Contatos: ddanielssoares@gmail.com
  *  enriqueemanuelcontato@gmail.com
  *  
- *  CORE HEXPOD: V2.35
+ *  CORE HEXPOD: V2.39A
  *  CONTROLE HEXPOD: V1.3
  *  
  *  =========Log de atualizacoes=============
  *  CONTEUDO NOVO:
- *  - Funcao front_auto construida
- *  - delay3 criado
- *  - HEXPOD agora da re, na movimentação autonoma
+ *  - Criada função Giro, que executa o controle de giro dos motores
+ *
  * CONTEUDO MODIFICADO: 
  * - Valores delay modificados
  * CONTEUDO EXCLUIDO:
  * 
+ * ============INFORMAÇÕES ÚTEIS=============
+ *  A ordem atual de sincronização dos motores é 1,5,6,3,2,4
+ *  
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  */
+  boolean sync1 = 0;
+  boolean sync2 = 0;
+  boolean sync3 = 0;
+  boolean sync4 = 0;
+  boolean sync5 = 0;
+  boolean sync6 = 0;
+  
+ int delay1;
+ int delay2;
+ int delay3;
+       
 //Bibliotecas
 #include <VirtualWire.h>
 #include <VirtualWire_Config.h>
@@ -27,28 +46,36 @@
   #define IN1  22
   #define IN2  23
   //Motor 2
-  #define IN3  24
-  #define IN4  25
+  #define IN3  42
+  #define IN4  43
   //Motor 3
-  #define IN5  26
-  #define IN6  27
+  #define IN5  48
+  #define IN6  49
   //Motor 4
-  #define IN7  28
-  #define IN8  29
+  #define IN7  26
+  #define IN8  27
   //Motor 5
-  #define IN9  30
-  #define IN10 31
+  #define IN9  38
+  #define IN10 39
   //Motor 6
-  #define IN11 32
-  #define IN12 33
+  #define IN11 52
+  #define IN12 53
 //Porta dos Sensores
-uint8_t motores[6] = {2, 3, 4, 5, 6, 7 }; //array que define os pinos dos motores
-#define sensorA 2
-#define sensorB 3
-#define sensorC 4
-#define sensorD 5
-#define sensorE 6
-#define sensorF 7
+uint8_t motores[6] = {2, 3, 4, 5, 6, 7 }; //array que define os pinos dos motores 
+
+//sensorA = Motor 1
+#define sensorA 25
+//sensorB = Motor 2 
+#define sensorB 24
+//sensorC = Motor 3 
+#define sensorC 34
+//sensorD = Motor 4
+#define sensorD 40
+//sensorE = Motor 5
+#define sensorE 33
+//sensorF = Motor 6
+#define sensorF 28
+
 //Portas de modulos
 #define pinRF  12 //Pino antena RF 433MHz
 #define trigPin A0 //Pino TRIG do sensor no pino analógico A0
@@ -69,9 +96,11 @@ int TempoGirar = 1;//Tempo de giro autonomo
 int distanciaObstaculo = 30; //Distancia para o robo identificar obstaculos 
 
 //Delays para movimento das patas
-  #define delay1 700 //Delay para iniciar o lado B
-  #define delay2 300 //Delay para parar o lado A
-  #define delay3 400
+  #define delay1 1000 //Delay para iniciar o lado B
+  
+  #define delay2 800 //Delay para parar o lado A
+  
+  #define delay3 1200
   
 //Declarando Funções que serão utilizadas:
 void front_auto();
@@ -79,9 +108,11 @@ int  graus(int x);
 void front();
 void right();  
 void left();
+void back();
 void parado(int l);
 void controle();
 void test();
+void giro(int num_motor, char sentido);
 int lerSonar();
 int calcularDistanciaCentro();
 int calcularDistanciaDireita();
@@ -94,6 +125,7 @@ void rotacao_Frente();
 void rotacao_Re();
 void rotacao_Direita();
 void rotacao_Esquerda();
+void test2();
 
 //Variaveis  para o sensor ultrassonico
 long duracao;
@@ -102,14 +134,37 @@ int minimumRange=5; //tempo de resposta do sensor
 int maximumRange=200;
 
 void setup() {
+  Serial.begin(9600);
 
-  for(int i = 22; i<34; i++) pinMode(i , OUTPUT);//Portas para controlar Ponte H
-  for(int i = 0; i<7; i++) pinMode(motores[i] , INPUT_PULLUP); //Portas 2 - 8 como entradas com resistor Pullup
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+  pinMode(IN5, OUTPUT);
+  pinMode(IN6, OUTPUT);
+  pinMode(IN7, OUTPUT);
+  pinMode(IN8, OUTPUT);
+  pinMode(IN9, OUTPUT);
+  pinMode(IN10, OUTPUT);
+  pinMode(IN11, OUTPUT);
+  pinMode(IN12, OUTPUT);
+  
+  pinMode(sensorA, INPUT_PULLUP);
+  pinMode(sensorB, INPUT_PULLUP);
+  pinMode(sensorC, INPUT_PULLUP);
+  pinMode(sensorD, INPUT_PULLUP);
+  pinMode(sensorE, INPUT_PULLUP);
+  pinMode(sensorF, INPUT_PULLUP);
+ 
   pinMode(8, OUTPUT);
   pinMode(9, OUTPUT);
 
   pinMode(trigPin, OUTPUT); //define o pino TRIG como saida
   pinMode(echoPin, INPUT);  //define o pino ECHO como entrada 
+
+  pinMode(A0, INPUT);
+  pinMode(A1, INPUT);
+  pinMode(A2, INPUT);
 
   vw_set_rx_pin(pinRF);
   vw_set_ptt_inverted(true);
@@ -119,10 +174,170 @@ void setup() {
 }
 
 void loop() {
-  controle();
+  test();
+  delay(6000);
+  sync1 = 0;
+  sync2 = 0;
+  sync3 = 0;
+  sync4 = 0;
+  sync5 = 0;
+  sync6 = 0;
+}                   
+
+
+void giro(int num_motor, char sentido){
+
+  // p = Parado
+  if (sentido == 'p'){
+    if (num_motor == 1){
+      digitalWrite(IN1, HIGH);
+      digitalWrite(IN2, HIGH);
+    }
+    
+    if (num_motor == 2){
+      digitalWrite(IN3, HIGH);
+      digitalWrite(IN4, HIGH);
+    }
+    
+    if (num_motor == 3){
+      digitalWrite(IN5, HIGH);
+      digitalWrite(IN6, HIGH);
+    }
+    
+    if (num_motor == 4){
+      digitalWrite(IN7, HIGH);
+      digitalWrite(IN8, HIGH);
+    }
+    
+    if (num_motor == 5){
+      digitalWrite(IN9, HIGH);
+      digitalWrite(IN10, HIGH);
+    }
+    
+    if (num_motor == 6){
+      digitalWrite(IN11, HIGH);
+      digitalWrite(IN12, HIGH);
+    }
+  }
+  
+  // f = Giro para a Frente do robô
+  if (sentido == 'f'){
+  
+    if (num_motor == 1){
+      digitalWrite(IN1, HIGH);
+      digitalWrite(IN2, LOW);
+    }
+    
+    if (num_motor == 2){
+      digitalWrite(IN3, HIGH);
+      digitalWrite(IN4, LOW);
+    }
+    
+    if (num_motor == 3){
+      digitalWrite(IN5, HIGH);
+      digitalWrite(IN6, LOW);
+    }
+    
+    if (num_motor == 4){
+      digitalWrite(IN7, HIGH);
+      digitalWrite(IN8, LOW);
+    }
+    
+    if (num_motor == 5){
+      digitalWrite(IN9, HIGH);
+      digitalWrite(IN10, LOW);
+    }
+    
+    if (num_motor == 6){
+      digitalWrite(IN11, HIGH);
+      digitalWrite(IN12, LOW);
+    }
+  }
+  
+  // t = Giro para Trás do robô
+  if (sentido == 't'){
+  
+    if (num_motor == 1){
+      digitalWrite(IN1, LOW);
+      digitalWrite(IN2, HIGH);
+    }
+    
+    if (num_motor == 2){
+      digitalWrite(IN3, LOW);
+      digitalWrite(IN4, HIGH);
+    }
+    
+    if (num_motor == 3){
+      digitalWrite(IN5, LOW);
+      digitalWrite(IN6, HIGH);
+    }
+    
+    if (num_motor == 4){
+      digitalWrite(IN7, LOW);
+      digitalWrite(IN8, HIGH);
+    }
+    
+    if (num_motor == 5){
+      digitalWrite(IN9, LOW);
+      digitalWrite(IN10, HIGH);
+    }
+    
+    if (num_motor == 6){
+      digitalWrite(IN11, LOW);
+      digitalWrite(IN12, HIGH);
+    }
+  }
+
+}
+
+void back(){
+  
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  //Motor 5(oposto) Frente robo:
+  digitalWrite(IN10, LOW);
+  digitalWrite(IN9, HIGH);
+  //Motor 3 Frente robo: 
+  digitalWrite(IN5, LOW);
+  digitalWrite(IN6, HIGH);
+    delay(1100);//Delay para iniciar o lado B
+    digitalWrite(IN10, HIGH);
+    digitalWrite(IN9, HIGH);
+    delay(100);
+  //Motor 4 Frente robo:
+  digitalWrite(IN7, LOW);
+  digitalWrite(IN8, HIGH);
+  //Motor 2 Frente robo:
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+  //Motor 6 Frente robo:
+  digitalWrite(IN11, LOW);
+  digitalWrite(IN12, HIGH);
+   
+  digitalWrite(IN5, HIGH);
+  digitalWrite(IN6, HIGH);
+    delay(200);//Delay para parar o lado A
+  //Motor 1 Frente robo:
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, HIGH);
+  //Motor 5 Frente robo:
+  digitalWrite(IN9, HIGH);
+  digitalWrite(IN10,HIGH);
+  //Motor 3 Frente robo:
+    delay(900);//Delay para parar o lado B
+  //Motor 4 Frente robo:
+  digitalWrite(IN7, HIGH);
+  digitalWrite(IN8, HIGH);
+  //Motor 2 Frente robo:
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, HIGH);
+  //Motor 6 Frente robo:
+  digitalWrite(IN11, HIGH);
+  digitalWrite(IN12, HIGH);
 }
 
 void controle(){
+
   if (vw_have_message()){
    vw_get_message(buf, &buflen);   
    memcpy(&pacote,&buf,buflen);
@@ -162,63 +377,323 @@ void controle(){
   }
 }
 
+void test2(){
+  parado(0);
+  delay(2000);
+  giro ( 1, 'p');
+  for(int g = 0; g <50; g++){
+        giro ( 1, 't');
+        giro ( 2, 't');
+        giro ( 3, 't');
+        giro ( 4, 't');
+        giro ( 5, 't');
+        giro ( 6, 't');
+        delay(1);
+        giro ( 1, 'p');
+        giro ( 2, 'p');
+        giro ( 3, 'p');
+        giro ( 4, 'p');
+        giro ( 5, 'p');
+        giro ( 6, 'p');
+        delay(1);
+      }
+    for(int g = 0; g <3000; g++){
+    if(g<1800){
+  giro ( 1, 't');
+  if(g>400) giro ( 4, 't');   
+    } else{ 
+      giro ( 1, 'f');
+      giro ( 4, 'f');
+    }
+    if(g<900){
+  giro ( 5, 'f');
+  if(g>400) giro ( 2, 'f');  
+    } else {
+      giro ( 5, 't');
+      if(g<2700) giro ( 2, 't');
+    }
+    if(g<1500){
+  giro ( 3, 't');
+  if(g>400) giro ( 6, 't');    
+    } else{
+      giro ( 3, 'f');
+      if(g<2800) giro ( 6, 'f');
+    }
+    
+    if(!sensorA) giro ( 1, 'p');
+    if(!sensorB) giro ( 2, 'p');
+    if(!sensorC) giro ( 3, 'p');
+    if(!sensorD) giro ( 4, 'p');
+    if(!sensorE) giro ( 5, 'p');
+    if(!sensorF) giro ( 6, 'p');
+    
+    
+  delay(1);
+  if(g<1800){
+  giro ( 1, 'p');
+  if(g>400) giro ( 4, 'f');    
+    } else{
+      if(sensorA) {
+        giro ( 1, 't');
+      } else{
+        giro ( 1, 'p');
+      }
+      giro ( 4, 'p');
+    }
+    if(g<900){
+  giro ( 5, 'p');
+  if(g>400) giro ( 2, 't');  
+    } else {
+      giro ( 5, 'f');
+      if(g<2500) giro ( 2, 'p');
+    }
+    if(g<1500){
+  giro ( 3, 'p');
+  if(g>400) giro ( 6, 'f');    
+    } else{
+      giro ( 3, 't');
+      giro ( 6, 'p');
+    }
+  delay(1);
+  }
+    giro ( 1, 'p');
+    giro ( 2, 'p');
+    giro ( 3, 'p');
+    giro ( 4, 'p');
+    giro ( 5, 'p');
+    giro ( 6, 'p');
+
+      for(int g = 0; g <25; g++){
+        giro ( 1, 't');
+        giro ( 2, 't');
+        giro ( 3, 't');
+        giro ( 4, 't');
+        giro ( 5, 't');
+        giro ( 6, 't');
+        delay(1);
+        giro ( 1, 'p');
+        giro ( 2, 'p');
+        giro ( 3, 'p');
+        giro ( 4, 'p');
+        giro ( 5, 'p');
+        giro ( 6, 'p');
+        delay(1);
+      }
+      
+  delay(5000); 
+}
+
 void test(){
-  front();
+  boolean ok = 0;
+  syncLeg:
+for(int g = 0; g <20; g++){
+    int pont = 0;
+    if(digitalRead(sensorA) && sync1 == 0){
+      giro ( 1, 'f');
+      
+      pont--;
+    }
+    if(digitalRead(sensorB) && sync2 == 0){
+      giro ( 2, 'f');
+      
+      pont--;
+    }
+    if(digitalRead(sensorC) && sync3 == 0){
+      giro ( 3, 'f');
+      
+      pont--;
+    }
+    if(digitalRead(sensorD) && sync4 == 0){
+      giro ( 4, 'f');
+      
+      pont--;
+    }
+    if(digitalRead(sensorE) && sync5 == 0){
+      giro ( 5, 'f');
+      
+      pont--;
+    }
+    if(digitalRead(sensorF) && sync6 == 0){
+      giro ( 6, 'f');
+      
+      pont--;
+    }
+    
+    delay(1);
+    if(!digitalRead(sensorA)){
+      giro ( 1, 'p');
+      Serial.println(g);
+      pont++;
+      sync1 = 1;
+    }
+    if(!digitalRead(sensorB)){
+      giro ( 2, 'p');
+      Serial.println(g);
+      pont++;
+      sync2 = 1;
+    }
+    if(!digitalRead(sensorC)){
+      giro ( 3, 'p');
+      pont++;
+      Serial.println(g);
+      sync3 = 1;
+    }
+    if(!digitalRead(sensorD)){
+      giro ( 4, 'p');
+      Serial.println(g);
+      pont++;
+      sync4 = 1;
+    }
+    if(!digitalRead(sensorE)){
+      giro ( 5, 'p');
+      Serial.println(g);
+      pont++;
+      sync5 = 1;
+    }
+    if(!digitalRead(sensorF)){
+      giro ( 6, 'p');
+      Serial.println(g);
+      pont++;
+      sync6 = 1;
+    }
+    delay(1);
+    if(pont >= 5){
+      Serial.println("OK!");
+      giro ( 1, 'p');
+      giro ( 2, 'p');
+      giro ( 3, 'p');
+      giro ( 4, 'p');
+      giro ( 5, 'p');
+      giro ( 6, 'p');
+      ok = 1;
+      break;
+    }
+  }
+  if(!ok) {
+    goto syncLeg;
+  }
 }
 void front(){     //Funcao que faz o Hexpod andar para frente
-  //Motor 1 Frente robo:
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
-  //Motor 5(oposto) Frente robo:
-  digitalWrite(IN10, HIGH);
-  digitalWrite(IN9, LOW);
-  //Motor 3 Frente robo:
-  digitalWrite(IN5, HIGH);
-  digitalWrite(IN6, LOW);
-    delay(delay1);//Delay para iniciar o lado B
-  //Motor 4 Frente robo:
-  digitalWrite(IN7, HIGH);
-  digitalWrite(IN8, LOW);
-  //Motor 2 Frente robo:
-  digitalWrite(IN3, HIGH);
-  digitalWrite(IN4, LOW);
-  //Motor 6 Frente robo:
-  digitalWrite(IN11, HIGH);
-  digitalWrite(IN12, LOW);
-    delay(delay2);//Delay para parar o lado A
-  //Motor 1 Frente robo:
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, HIGH);
-  //Motor 5 Frente robo:
-  digitalWrite(IN9, HIGH);
-  digitalWrite(IN10,HIGH);
-  //Motor 3 Frente robo:
-  digitalWrite(IN5, HIGH);
-  digitalWrite(IN6, HIGH);
-    delay(delay3);//Delay para parar o lado B
-  //Motor 4 Frente robo:
-  digitalWrite(IN7, HIGH);
-  digitalWrite(IN8, HIGH);
-  //Motor 2 Frente robo:
-  digitalWrite(IN3, HIGH);
-  digitalWrite(IN4, HIGH);
-  //Motor 6 Frente robo:
-  digitalWrite(IN11, HIGH);
-  digitalWrite(IN12, HIGH);
-    parado(0);//Chama a funaao parado que sincroniza as patas ao chao, com sentido para frente do robo
+  parado(0);
+  delay(2000);
+  giro ( 1, 'p');
+  for(int g = 0; g <50; g++){
+        giro ( 1, 't');
+        giro ( 2, 't');
+        giro ( 3, 't');
+        giro ( 4, 't');
+        giro ( 5, 't');
+        giro ( 6, 't');
+        delay(1);
+        giro ( 1, 'p');
+        giro ( 2, 'p');
+        giro ( 3, 'p');
+        giro ( 4, 'p');
+        giro ( 5, 'p');
+        giro ( 6, 'p');
+        delay(1);
+      }
+    for(int g = 0; g <2700; g++){
+    if(g<1400){
+  giro ( 1, 'f');
+  if(g>400) giro ( 4, 't');   
+    } else{ 
+      giro ( 1, 't');
+      giro ( 4, 'f');
+    }
+    if(g<1100){
+  giro ( 5, 'f');
+  if(g>400) giro ( 2, 't');  
+    } else {
+      giro ( 5, 't');
+      if(g<2500) giro ( 2, 'f');
+    }
+    if(g<1200){
+  giro ( 3, 'f');
+  if(g>400) giro ( 6, 't');    
+    } else{
+      giro ( 3, 't');
+      if(g<2400) giro ( 6, 'f');
+    }
+    
+    if(!sensorA) giro ( 1, 'p');
+    if(!sensorB) giro ( 2, 'p');
+    if(!sensorC) giro ( 3, 'p');
+    if(!sensorD) giro ( 4, 'p');
+    if(!sensorE) giro ( 5, 'p');
+    if(!sensorF) giro ( 6, 'p');
+    
+    
+  delay(1);
+  if(g<1400){
+  giro ( 1, 'p');
+  if(g>400) giro ( 4, 'f');    
+    } else{
+      if(sensorA) {
+        giro ( 1, 'f');
+      } else{
+        giro ( 1, 'p');
+      }
+      giro ( 4, 'p');
+    }
+    if(g<1100){
+  giro ( 5, 'p');
+  if(g>400) giro ( 2, 'f');  
+    } else {
+      giro ( 5, 'f');
+      if(g<2500) giro ( 2, 'p');
+    }
+    if(g<1200){
+  giro ( 3, 'p');
+  if(g>400) giro ( 6, 'f');    
+    } else{
+      giro ( 3, 'f');
+      giro ( 6, 'p');
+    }
+  delay(1);
+  }
+    giro ( 1, 'p');
+    giro ( 2, 'p');
+    giro ( 3, 'p');
+    giro ( 4, 'p');
+    giro ( 5, 'p');
+    giro ( 6, 'p');
+
+      for(int g = 0; g <25; g++){
+        giro ( 1, 't');
+        giro ( 2, 't');
+        giro ( 3, 't');
+        giro ( 4, 't');
+        giro ( 5, 't');
+        giro ( 6, 't');
+        delay(1);
+        giro ( 1, 'p');
+        giro ( 2, 'p');
+        giro ( 3, 'p');
+        giro ( 4, 'p');
+        giro ( 5, 'p');
+        giro ( 6, 'p');
+        delay(1);
+      }
+  parado(0);
 }
 
 void right(){
+
+  //Motor 1 Frente robo:
   //Motor 1 Frente robo:
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
   //Motor 5(oposto) Frente robo:
   digitalWrite(IN10, HIGH);
   digitalWrite(IN9, LOW);
-  //Motor 3 Frente robo:
+  //Motor 3 Frente robo: 
   digitalWrite(IN5, HIGH);
   digitalWrite(IN6, LOW);
-    delay(delay1);//Delay para iniciar o lado B
+    delay(1100);//Delay para iniciar o lado B
+    digitalWrite(IN10, HIGH);
+    digitalWrite(IN9, HIGH);
+    delay(150);
   //Motor 4 Frente robo:
   digitalWrite(IN7, LOW);
   digitalWrite(IN8, HIGH);
@@ -228,17 +703,19 @@ void right(){
   //Motor 6 Frente robo:
   digitalWrite(IN11, LOW);
   digitalWrite(IN12, HIGH);
-    delay(delay2);//Delay para parar o lado A
+   delay(50);
+  digitalWrite(IN5, HIGH);
+  digitalWrite(IN6, HIGH);
+    delay(300);//Delay para parar o lado A
   //Motor 1 Frente robo:
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, HIGH);
+  delay(200);
   //Motor 5 Frente robo:
   digitalWrite(IN9, HIGH);
   digitalWrite(IN10,HIGH);
   //Motor 3 Frente robo:
-  digitalWrite(IN5, HIGH);
-  digitalWrite(IN6, HIGH);
-    delay(delay3);//Delay para parar o lado B
+    delay(900);//Delay para parar o lado B
   //Motor 4 Frente robo:
   digitalWrite(IN7, HIGH);
   digitalWrite(IN8, HIGH);
@@ -249,6 +726,7 @@ void right(){
   digitalWrite(IN11, HIGH);
   digitalWrite(IN12, HIGH);
   parado(0);                        //Chama a funaao parado que sincroniza as patas ao chao, com sentido para direita do robo
+
 }
 
 void left(){     //Funcao que faz o Hexpod andar para a esquerda
@@ -297,101 +775,95 @@ void left(){     //Funcao que faz o Hexpod andar para a esquerda
 void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe valor: sentido de rotacao, para sincronizar
   if(sentido == 0) {                    //Se sentido for 0, sincroniza as patas para tras do robo
 
-
-      //Sincronizar Motor 2:  
-      if(!digitalRead(sensorB)){    //Se o sensor B, localizado na porta 3, estiver ativado
-        digitalWrite(IN1, HIGH);
-        digitalWrite(IN2, HIGH);
+      //Sincronizar Motor 1:  
+      if(!digitalRead(sensorA)){    //Se o sensor B, localizado na porta 3, estiver ativado
+        giro ( 1, 'p');
       } else {                      //Se não
           do{                       //Executa uma vez o que estiver dentro de "do"
-            digitalWrite(IN1, HIGH);
-            digitalWrite(IN2, LOW);
-          }while(digitalRead(sensorB));//Enquanto sensor B estiver desativado ele executa "do"
-          if(!digitalRead(sensorB)){//Se o sensor B, localizado na porta 3, estiver ativado
-            digitalWrite(IN1, HIGH);
-            digitalWrite(IN2, HIGH);
+            giro ( 1, 'f');
+          }while(digitalRead(sensorA));//Enquanto sensor B estiver desativado ele executa "do"
+          if(!digitalRead(sensorA)){//Se o sensor B, localizado na porta 3, estiver ativado
+            giro ( 1, 'p');
           }                         //
       }                             //
 
       //Sincronizar Motor 5:
       if(!digitalRead(sensorE)){
-        digitalWrite(IN9, HIGH);
-        digitalWrite(IN10,HIGH);
+        giro ( 5, 'p');
       } else {
           do{
-            digitalWrite(IN9, HIGH);
-            digitalWrite(IN10,LOW);
+            giro ( 5, 'f');
           } while(digitalRead(sensorE));
           if(!digitalRead(sensorE)){
-            digitalWrite(IN9, HIGH);
-            digitalWrite(IN10,HIGH);
+            giro ( 5, 'p');          
           }
       }
 
       //Sincronizar Motor 6:
       if(!digitalRead(sensorF)){
-        digitalWrite(IN11, HIGH);
-        digitalWrite(IN12, HIGH);
+        giro ( 6, 'p');
       } else {
           do{
-            digitalWrite(IN11, HIGH);
-            digitalWrite(IN12, LOW);
+            giro ( 6, 'f');
           }while(digitalRead(sensorF));
           if(!digitalRead(sensorF)){
-            digitalWrite(IN11, HIGH);
-            digitalWrite(IN12, HIGH);
+            giro ( 6, 'p');
           }
       }
       
       //Sincronizar Motor 3:
       if(!digitalRead(sensorC)){    //Se o sensor C, localizado na porta 4, estiver ativado
-        digitalWrite(IN5, HIGH);
-        digitalWrite(IN6, HIGH);
+        giro ( 3, 'p');
       } else {                      //Se não
           do{                       //Executa uma vez o que estiver dentro de "do"
-            digitalWrite(IN5, HIGH);
-            digitalWrite(IN6, LOW);
+            giro ( 3, 'f');
           }while(digitalRead(sensorC));//Enquanto sensor B estiver desativado ele executa "do"
           if(!digitalRead(sensorC)){//Se o sensor C, localizado na porta 4, estiver ativado
-            digitalWrite(IN5, HIGH);
-            digitalWrite(IN6, HIGH);
+            giro ( 3, 'p');
           }                         //
       }                             //
 
-
       
-    //Sincronizar Motor 1:
-      if(!digitalRead(sensorA)){    //Se o sensor A, localizado na porta 2, estiver ativado
-        digitalWrite(IN1, HIGH);
-        digitalWrite(IN2, HIGH);
-      } else {                      //Se não
-          do {                      //Executa uma vez o que estiver dentro de "do"
-            digitalWrite(IN1, HIGH);
-            digitalWrite(IN2, LOW); 
-          } while(digitalRead(sensorA));//Enquanto sensor A estiver desativado ele executa "do"
-          if(!digitalRead(sensorA)){//Se o sensor A, localizado na porta 2, estiver ativado
-            digitalWrite(IN1, HIGH);
-            digitalWrite(IN2, HIGH);
-          }                         //
-      }                             //
-
-
-      
-    //Sincronizar Motor 4:               
-      if(!digitalRead(sensorD)){
-        digitalWrite(IN7, HIGH);
-        digitalWrite(IN8, HIGH);
+    //Sincronizar Motor 2:
+      if(!digitalRead(sensorB)){
+        giro ( 2, 'p');
       } else {
           do{
-            digitalWrite(IN7, HIGH);
-            digitalWrite(IN8, LOW);
-          }while(digitalRead(sensorD));
-          if(!digitalRead(sensorD)){
-            digitalWrite(IN7, HIGH);
-            digitalWrite(IN8, LOW);
+            giro ( 2, 'f');
+          }while(digitalRead(sensorB));
+          if(!digitalRead(sensorB)){
+            giro ( 2, 'p');
           }
       }
-  }//end if
+
+    //Sincronizar Motor 4:               
+      if(!digitalRead(sensorD)){    //Se o sensor A, localizado na porta 2, estiver ativado
+        giro ( 4, 'p');
+      } else {                      //Se não
+          do {                      //Executa uma vez o que estiver dentro de "do"
+            giro ( 4, 'f'); 
+          } while(digitalRead(sensorD));//Enquanto sensor A estiver desativado ele executa "do"
+          if(!digitalRead(sensorD)){//Se o sensor A, localizado na porta 2, estiver ativado
+            giro ( 4, 'p');
+          }                         //
+      }                             //
+      giro(1, 't');
+      giro(2, 't');
+      //giro(3, 't');
+      giro(4, 't');
+      giro(5, 't');
+      giro(6, 't');
+      delay(25);
+      giro(4, 'p');
+      giro(5, 'p');
+      giro(6, 'p');
+      delay(25);
+      giro(1, 'p');
+      giro(2, 'p');
+      giro(3, 'p');
+  }
+
+
   /*
   if(sentido == 1) {                    //Se sentido for 1, sincroniza as patas para direita do robo
 
@@ -687,47 +1159,7 @@ void rotacao_Frente(){
 }    
 // Funcao que faz o robo andar para tras    
 void rotacao_Re(){
-  //Motor 1 tras robo:
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, HIGH);
-  //Motor 5(oposto) tras robo:
-  digitalWrite(IN10, LOW);
-  digitalWrite(IN9, HIGH);
-  //Motor 3 tras robo:
-  digitalWrite(IN5, LOW);
-  digitalWrite(IN6, HIGH);
-    delay(delay1);//Delay para iniciar o lado B
-  //Motor 4 tras robo:
-  digitalWrite(IN7, LOW);
-  digitalWrite(IN8, HIGH);
-  //Motor 2 tras robo:
-  digitalWrite(IN3, LOW);
-  digitalWrite(IN4, HIGH);
-  //Motor 6 tras robo:
-  digitalWrite(IN11, LOW);
-  digitalWrite(IN12, HIGH);
-    delay(delay2);//Delay para parar o lado A
-  //Motor 1 robo:
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, HIGH);
-  //Motor 5 robo:
-  digitalWrite(IN9, HIGH);
-  digitalWrite(IN10,HIGH);
-  //Motor 3 robo:
-  digitalWrite(IN5, HIGH);
-  digitalWrite(IN6, HIGH);
-    delay(delay3);//Delay para parar o lado B
-  //Motor 4 robo:
-  digitalWrite(IN7, HIGH);
-  digitalWrite(IN8, HIGH);
-  //Motor 2 robo:
-  digitalWrite(IN3, HIGH);
-  digitalWrite(IN4, HIGH);
-  //Motor 6 robo:
-  digitalWrite(IN11, HIGH);
-  digitalWrite(IN12, HIGH);
-    parado(0);//Chama a funacao parado que sincroniza as patas ao chao, com sentido para frente do robo    
-
+    back();
 }    
     
 void rotacao_Direita(){
