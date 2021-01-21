@@ -2,7 +2,9 @@
 ETEC Martin Luther King - Orientador: Professor Mestre Engenheiro Paulo Roberto Murguer Nogueira
 ![Foto do HEXPOD no seu ultimo dia de teste!](./HEXPOD.png "Foto do HEXPOD no seu ultimo dia de teste!")
 
-`Serial.printf("ESTOU VIVO!");`
+```C++ 
+Serial.print("ESTOU VIVO!");
+```
 ## Grupo
 * _ALLAN BEZERRA DEL VALLE_
 * _DANIEL LOPES SOARES_ - https://github.com/DanielCreeklear
