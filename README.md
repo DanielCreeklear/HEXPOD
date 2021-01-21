@@ -8,8 +8,8 @@ Serial.print("ESTOU VIVO!");
 :laughing:
 ## Grupo
 * _ALLAN BEZERRA DEL VALLE_
-* _DANIEL LOPES SOARES_ - @DanielCreeklear
-* _ENRIQUE EMANUEL REZENDE TAVARES DA SILVA_ - @Oiapokxui
+* _DANIEL LOPES SOARES_ - @ DanielCreeklear
+* _ENRIQUE EMANUEL REZENDE TAVARES DA SILVA_ - @ Oiapokxui
 * _GABRIEL LUÍS FRUTUOSO_
 ## Resumo
   Inspirado em um dos [robôs](https://www.youtube.com/watch?v=ISznqY3kESI) criados pela Boston Dynamics, o projeto se resume a um robô hexápode cujo propósito é ser remotamente controlado, útil em ambientes que inviabilizam o uso das rodas. Surge da necessidade de um robô que percorresse a maioria dos terrenos sem muitas dificuldades. Para isso, constitui-se de seis patas com o formato ‘C’, que garante uma boa mobilidade. Com controle por rádio frequência, também inclui uma câmera sem fio, que permite monitoramento a distância e auxilia o controle dos movimentos executados pelo  robô. O  projeto  foi  construído  inteiramente  por  observações  de material  audiovisual.
