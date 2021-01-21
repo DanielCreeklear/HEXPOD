@@ -1,4 +1,4 @@
-/* ------------- MOVIMENTO PATAS VERSAO 2.2 ------------- 
+/* ------------- MOVIMENTO PATAS VERSAO 2.3 ------------- 
  *  Desenvolvedores: Daniel Lopes / Enrique Emanuel
  *  ETEC Martin Luther King
  *  Sao Paulo(SP), Brasil - 2019
@@ -13,7 +13,7 @@
 
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40);                            //Seleciona o shield com endereco 0x40
-SoftwareSerial Bluetooth(10, 11); // RX, TX
+//SoftwareSerial Bluetooth(10, 11); // RX, TX
 
 //Configuração PWM para o servo motor. Ajuste o pulso de acordo com
 //o servo motor que você vai utilizar
@@ -31,6 +31,7 @@ int motores[6] = {2, 3, 4, 5, 6, 7 };                                           
 char bluetooth;
 
 //Declarando Funções que serão utilizadas:
+int   bateria();
 int   graus(int x);
 void  front();
 void  right();  
@@ -39,7 +40,7 @@ void  parado();
 
 void setup() {
   
-  Bluetooth.begin(9600);
+//Bluetooth.begin(9600);
   pwm.begin();                                                                          //Inicia o controle dos servos(PWM)
   pwm.setPWMFreq(50);                                                                   //Frequencia de comunicaçao com o driver em 50Hz
 
@@ -48,7 +49,7 @@ void setup() {
 }
 
 void loop() {
-  bluetooth = Bluetooth.read();
+  bluetooth = Serial.read();
   switch (bluetooth) {
         case 'W':
           front();
@@ -61,9 +62,11 @@ void loop() {
         case 'D':
           right();
         break;
-        
-        default:
-        parado(0);          
+
+        case '9':
+          parado(0);
+        break;
+                  
       }
 }
 
@@ -129,6 +132,8 @@ void left(){     //Funcao que faz o Hexpod andar para frente
 
 void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe valor: sentido de rotacao, para sincronizar
   if(sentido == 0) {                    //Se sentido for 0, sincroniza as patas para tras do robo
+
+    //Sincronizar Motor 1:
       if(!digitalRead(sensorA)){    //Se o sensor A, localizado na porta 2, estiver ativado
         pwm.setPWM(0, 0, graus(51));//Motor 0 parado
       } else {                      //Se não
@@ -139,7 +144,9 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
             pwm.setPWM(0, 0, graus(51));//Motor 0 parado
           }                         //
       }                             //
-      delay(1);                     //Delay apenas para diminuir a velocidade do processamento
+
+
+    //Sincronizar Motor 2:  
       if(!digitalRead(sensorB)){    //Se o sensor B, localizado na porta 3, estiver ativado
         pwm.setPWM(1, 0, graus(51));//Motor 1 parado
       } else {                      //Se não
@@ -150,7 +157,9 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
             pwm.setPWM(1, 0, graus(51));//Motor 1 parado
           }                         //
       }                             //
-      delay(1);                     //Delay apenas para diminuir a velocidade do processamento
+
+      
+    //Sincronizar Motor 3:
       if(!digitalRead(sensorC)){    //Se o sensor C, localizado na porta 4, estiver ativado
         pwm.setPWM(2, 0, graus(51));//Motor 2 parado
       } else {                      //Se não
@@ -161,7 +170,9 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
             pwm.setPWM(2, 0, graus(51));//Motor 2 parado
           }                         //
       }                             //
-      delay(1);                     
+
+      
+    //Sincronizar Motor 4:               
       if(!digitalRead(sensorD)){
         pwm.setPWM(3, 0, graus(51));
       } else {
@@ -172,7 +183,9 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
             pwm.setPWM(3, 0, graus(51));
           }
       }
-      delay(1);
+
+
+    //Sincronizar Motor 5:
       if(!digitalRead(sensorE)){
         pwm.setPWM(4, 0, graus(51));
       } else {
@@ -183,7 +196,9 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
             pwm.setPWM(4, 0, graus(51));
           }
       }
-      delay(1);
+
+      
+    //Sincronizar Motor 6:
       if(!digitalRead(sensorF)){
         pwm.setPWM(5, 0, graus(51));
       } else {
@@ -194,8 +209,13 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
             pwm.setPWM(5, 0, graus(51));
           }
       }
+
+      
   }
   if(sentido == 1) {                    //Se sentido for 1, sincroniza as patas para direita do robo
+
+
+    //Sincronizar Motor 1:
       if(!digitalRead(sensorA)){    //Se o sensor A, localizado na porta 2, estiver ativado
         pwm.setPWM(0, 0, graus(51));//Motor 0 parado
       } else {                      //Se não
@@ -206,7 +226,9 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
             pwm.setPWM(0, 0, graus(51));//Motor 0 parado
           }                         //
       }                             //
-      delay(1);                     //Delay apenas para diminuir a velocidade do processamento
+
+      
+    //Sincronizar Motor 2:
       if(!digitalRead(sensorB)){    //Se o sensor B, localizado na porta 3, estiver ativado
         pwm.setPWM(1, 0, graus(51));//Motor 1 parado
       } else {                      //Se não
@@ -217,7 +239,10 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
             pwm.setPWM(1, 0, graus(51));//Motor 1 parado
           }                         //
       }                             //
-      delay(1);                     //Delay apenas para diminuir a velocidade do processamento
+
+
+
+    //Sincronizar Motor 3:
       if(!digitalRead(sensorC)){    //Se o sensor C, localizado na porta 4, estiver ativado
         pwm.setPWM(2, 0, graus(51));//Motor 2 parado
       } else {                      //Se não
@@ -228,7 +253,9 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
             pwm.setPWM(2, 0, graus(51));//Motor 2 parado
           }                         //
       }                             //
-      delay(1);                     
+
+      
+    //Sincronizar Motor 4:
       if(!digitalRead(sensorD)){
         pwm.setPWM(3, 0, graus(51));
       } else {
@@ -239,7 +266,9 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
             pwm.setPWM(3, 0, graus(51));
           }
       }
-      delay(1);
+
+      
+    //Sincronizar Motor 5:
       if(!digitalRead(sensorE)){
         pwm.setPWM(4, 0, graus(51));
       } else {
@@ -250,7 +279,9 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
             pwm.setPWM(4, 0, graus(51));
           }
       }
-      delay(1);
+
+      
+    //Sincronizar Motor 6:
       if(!digitalRead(sensorF)){
         pwm.setPWM(5, 0, graus(51));
       } else {
@@ -261,8 +292,15 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
             pwm.setPWM(5, 0, graus(51));
           }
       }
+
+
+      
   }
+  
   if(sentido == 3) {                    //Se sentido for 0, sincroniza as patas para esquerda do robo
+
+
+    //Sincronizar Motor 1:
       if(!digitalRead(sensorA)){    //Se o sensor A, localizado na porta 2, estiver ativado
         pwm.setPWM(0, 0, graus(51));//Motor 0 parado
       } else {                      //Se não
@@ -273,7 +311,9 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
             pwm.setPWM(0, 0, graus(51));//Motor 0 parado
           }                         //
       }                             //
-      delay(1);                     //Delay apenas para diminuir a velocidade do processamento
+
+      
+    //Sincronizar Motor 2:
       if(!digitalRead(sensorB)){    //Se o sensor B, localizado na porta 3, estiver ativado
         pwm.setPWM(1, 0, graus(51));//Motor 1 parado
       } else {                      //Se não
@@ -284,7 +324,9 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
             pwm.setPWM(1, 0, graus(51));//Motor 1 parado
           }                         //
       }                             //
-      delay(1);                     //Delay apenas para diminuir a velocidade do processamento
+
+      
+    //Sincronizar Motor 3:
       if(!digitalRead(sensorC)){    //Se o sensor C, localizado na porta 4, estiver ativado
         pwm.setPWM(2, 0, graus(51));//Motor 2 parado
       } else {                      //Se não
@@ -295,7 +337,9 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
             pwm.setPWM(2, 0, graus(51));//Motor 2 parado
           }                         //
       }                             //
-      delay(1);                     
+
+
+    //Sincronizar Motor 4:
       if(!digitalRead(sensorD)){
         pwm.setPWM(3, 0, graus(51));
       } else {
@@ -306,7 +350,9 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
             pwm.setPWM(3, 0, graus(51));
           }
       }
-      delay(1);
+
+      
+    //Sincronizar Motor 5:
       if(!digitalRead(sensorE)){
         pwm.setPWM(4, 0, graus(51));
       } else {
@@ -317,7 +363,9 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
             pwm.setPWM(4, 0, graus(51));
           }
       }
-      delay(1);
+
+      
+    //Sincronizar Motor 6:
       if(!digitalRead(sensorF)){
         pwm.setPWM(5, 0, graus(51));
       } else {
@@ -329,6 +377,9 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
           }
       }
   }
+
+
+  
 }
   
 int graus(int x) {                                                                      //Funçao 'graus' que recebe um valor Inteiro armazenado em 'x'                                                            
@@ -336,4 +387,8 @@ int graus(int x) {                                                              
   graus = map(graus, 0, 180, SERVOMIN, SERVOMAX);                                       //Regra de 3, para converter graus no valor do PWM
   
   return graus;                                                                         //Retorna como resultado da funcao, o valor da variavel 'graus'
+}
+
+int bateria(){
+  
 }
