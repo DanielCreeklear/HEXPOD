@@ -1,15 +1,35 @@
-/* ------------- MOVIMENTO PATAS VERSAO 2.3.4 ------------- 
+/* ------------- MOVIMENTO PATAS VERSAO 2.3.5 ------------- 
  *  Desenvolvedores: Daniel Lopes / Enrique Emanuel
  *  ETEC Martin Luther King
  *  Sao Paulo(SP), Brasil - 2019
  *  Contatos: ddanielssoares@gmail.com
  *  enriqueemanuelcontato@gmail.com
  *  
+ *  CORE HEXPOD: V2.35
+ *  CONTROLE HEXPOD: V1.3
+ *  
+ *  =========Log de atualizacoes=============
+ *  CONTEUDO NOVO:
+ *  - Portas para controlar o LED e a Camera.
+ *  - Acrescentado funcoes aos botoes S, Z, C, G e B sendo:
+ *  S: Movimentacao autonoma
+ *  G: Liga/Desliga LED
+ *  B: Liga/Desliga Camera
+ *  - Criada funcao test(), que executa apenas o front(). 
+ *  - Criada funcao controle(), que executa todo o funcionamento do robo atraves do controle.
+ * CONTEUDO MODIFICADO: 
+ * - Valor da constante 'delay1' mudado para 650
+ * CONTEUDO EXCLUIDO:
+ * - Biblioteca Software Serial e todas suas linhas de comandos
+ * - Função bateria()
+ * 
  */
 //Bibliotecas
+#include <VirtualWire.h>
+#include <VirtualWire_Config.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
-#include <SoftwareSerial.h>
+
 
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40);  //Seleciona o shield com endereco 0x40
@@ -28,17 +48,17 @@ uint8_t motores[6] = {2, 3, 4, 5, 6, 7 }; //array que define os pinos dos motore
 #define sensorF 7
 #define pinRF  12
 #define pinLED 13
+boolean LED = 0;
+boolean CAMERA = 0;
 struct tipoPacote {
   char valor1;
 };
 tipoPacote pacote; 
 uint8_t buf[sizeof(pacote)];
 uint8_t buflen = sizeof(pacote);
-
-boolean set_p;
 //Delays para movimento das patas
   //4V:
-  #define delay1 1350 //Delay para iniciar o lado B
+  #define delay1 650 //Delay para iniciar o lado B
   #define delay2 100 //Delay para parar o lado A
   //5V:
   #define delay3 900 //Delay para iniciar o lado B
@@ -52,30 +72,72 @@ boolean set_p;
 
 //Declarando Funções que serão utilizadas:
 void front_auto();
-void bateria();
 int  graus(int x);
 void front();
 void right();  
 void left();
 void parado();
+void controle();
+void test();
 
 void setup() {
-  Serial.begin(9600);
-//Bluetooth.begin(9600);
   pwm.begin(); //Inicia o controle dos servos(PWM)
   pwm.setPWMFreq(50); //Frequencia de comunicaçao com o driver em 50Hz
 
   for(int i = 0; i<7; i++) pinMode(motores[i] , INPUT_PULLUP); //Portas 2 - 8 como entradas com resistor Pullup
+  pinMode(8, OUTPUT);
+  pinMode(9, OUTPUT);
 
-  //vw_set_rx_pin(pinRF);
-  //vw_setup(2000);   
-  //vw_rx_start();
+  vw_set_rx_pin(pinRF);
+  vw_setup(2000);   
+  vw_rx_start();
 }
 
 void loop() {
-  front();
+  controle();
 }
 
+void controle(){
+  if (vw_have_message()){
+   vw_get_message(buf, &buflen);   
+   memcpy(&pacote,&buf,buflen);
+    switch (pacote.valor1) {
+          case 'W':
+            front();
+          break;
+
+          case 'S':
+            front_auto();
+          break;
+          
+          case 'A':
+            left();
+          break;
+  
+          case 'D':
+            right();
+          break;
+  
+          case 'C':
+            parado(0);
+          break;
+          
+          case'G':
+            LED = !LED;
+            digitalWrite(8, LED);
+          break;
+
+          case'B':
+            CAMERA = !CAMERA;
+            digitalWrite(9, CAMERA);
+          break; 
+    }
+  }
+}
+
+void test(){
+  front();
+}
 void front(){     //Funcao que faz o Hexpod andar para frente
   pwm.setPWM(0, 0, graus(180));     //Motor 0 gira com sentido para frente no robo 
   pwm.setPWM(4, 0, graus(0));       //Motor 4(motor oposto) gira com sentido para frente no robo
@@ -398,15 +460,6 @@ int graus(int x) { //Funçao 'graus' que recebe um valor Inteiro armazenado em '
   graus = map(graus, 0, 180, SERVOMIN, SERVOMAX); //Regra de 3, para converter graus no valor do PWM
   
   return graus; //Retorna como resultado da funcao, o valor da variavel 'graus'
-}
-
-void bateria(){
-  float bateria = digitalRead(A1);
-  bateria = map(bateria, 0, 1024, 0, 5.2);
-  bateria = map(bateria, 0, 5, 0, 8.4);
-  if(bateria < 6.1) {
-    Serial.write("U");
-  }
 }
 
 void front_auto(){
