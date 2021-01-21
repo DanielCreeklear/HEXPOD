@@ -22,9 +22,10 @@ Serial.print("ESTOU VIVO!");
 :trophy: Controle com 4 botões e 1 analógico via Rádio Frequência
 
 :trophy: Sensor Ultrassônico para navegação autônoma
-## Linguagens e libs utilizadas :books:
+## Linguagens e bibliotecas utilizadas :books:
 
 - [C/C++ (Arduino)](https://www.arduino.cc/)
+- VirtualWire 1.27
 ## Diagramas :page_with_curl:
 
 
