@@ -1,4 +1,4 @@
-/* ------------- MOVIMENTO PATAS VERSAO 2.3.6 ------------- 
+/* ------------- MOVIMENTO PATAS VERSAO 2.4 ------------- 
  *  Desenvolvedores: Daniel Lopes / Enrique Emanuel
  *  ETEC Martin Luther King
  *  Sao Paulo(SP), Brasil - 2019
@@ -10,11 +10,12 @@
  *  
  *  =========Log de atualizacoes=============
  *  CONTEUDO NOVO:
- *  - Portas Ponte H
+ *  - Funcao front_auto construida
+ *  - delay3 criado
+ *  - HEXPOD agora da re, na movimentação autonoma
  * CONTEUDO MODIFICADO: 
- * - Controle dos servos trocado pela Ponte H
+ * - Valores delay modificados
  * CONTEUDO EXCLUIDO:
- * - Qualquer coisa envolvida com os servos
  * 
  */
 //Bibliotecas
@@ -48,9 +49,15 @@ uint8_t motores[6] = {2, 3, 4, 5, 6, 7 }; //array que define os pinos dos motore
 #define sensorD 5
 #define sensorE 6
 #define sensorF 7
-#define pinRF  12
+//Portas de modulos
+#define pinRF  12 //Pino antena RF 433MHz
+#define trigPin A0 //Pino TRIG do sensor no pino analógico A0
+#define echoPin A1 //Pino ECHO do sensor no pino analógico A1
+
+//Variaveis de controle
 boolean LED = 0;
 boolean CAMERA = 0;
+
 struct tipoPacote {
   char valor1;
 };
@@ -58,9 +65,13 @@ tipoPacote pacote;
 uint8_t buf[sizeof(pacote)];
 uint8_t buflen = sizeof(pacote);
 
+int TempoGirar = 1;//Tempo de giro autonomo
+int distanciaObstaculo = 30; //Distancia para o robo identificar obstaculos 
+
 //Delays para movimento das patas
-  #define delay1 650 //Delay para iniciar o lado B
-  #define delay2 100 //Delay para parar o lado A
+  #define delay1 700 //Delay para iniciar o lado B
+  #define delay2 300 //Delay para parar o lado A
+  #define delay3 400
   
 //Declarando Funções que serão utilizadas:
 void front_auto();
@@ -68,9 +79,27 @@ int  graus(int x);
 void front();
 void right();  
 void left();
-void parado();
+void parado(int l);
 void controle();
 void test();
+int lerSonar();
+int calcularDistanciaCentro();
+int calcularDistanciaDireita();
+int calcularDistanciaEsquerda();
+char calculaMelhorDistancia();
+void posicionaCarroMelhorCaminho();
+void reposicionaServoSonar();
+void rotacao_Parado();
+void rotacao_Frente();
+void rotacao_Re();
+void rotacao_Direita();
+void rotacao_Esquerda();
+
+//Variaveis  para o sensor ultrassonico
+long duracao;
+long distancia_cm=0;
+int minimumRange=5; //tempo de resposta do sensor
+int maximumRange=200;
 
 void setup() {
 
@@ -79,7 +108,11 @@ void setup() {
   pinMode(8, OUTPUT);
   pinMode(9, OUTPUT);
 
+  pinMode(trigPin, OUTPUT); //define o pino TRIG como saida
+  pinMode(echoPin, INPUT);  //define o pino ECHO como entrada 
+
   vw_set_rx_pin(pinRF);
+  vw_set_ptt_inverted(true);
   vw_setup(2000);   
   vw_rx_start();
   
@@ -99,7 +132,9 @@ void controle(){
           break;
 
           case 'S':
+            for(int n=0; n<20; n++){ 
             front_auto();
+            }
           break;
           
           case 'A':
@@ -160,8 +195,7 @@ void front(){     //Funcao que faz o Hexpod andar para frente
   //Motor 3 Frente robo:
   digitalWrite(IN5, HIGH);
   digitalWrite(IN6, HIGH);
-    int a = delay1 - delay2;
-    delay(a);//Delay para parar o lado B
+    delay(delay3);//Delay para parar o lado B
   //Motor 4 Frente robo:
   digitalWrite(IN7, HIGH);
   digitalWrite(IN8, HIGH);
@@ -204,8 +238,7 @@ void right(){
   //Motor 3 Frente robo:
   digitalWrite(IN5, HIGH);
   digitalWrite(IN6, HIGH);
-    int a = delay1 - delay2;
-    delay(a);//Delay para parar o lado B
+    delay(delay3);//Delay para parar o lado B
   //Motor 4 Frente robo:
   digitalWrite(IN7, HIGH);
   digitalWrite(IN8, HIGH);
@@ -248,8 +281,7 @@ void left(){     //Funcao que faz o Hexpod andar para a esquerda
   //Motor 3 parado:
   digitalWrite(IN5, HIGH);
   digitalWrite(IN6, HIGH);
-    int a = delay1 - delay2;
-    delay(a);//Delay para parar o lado B
+    delay(delay3);//Delay para parar o lado B
   //Motor 4 parado:
   digitalWrite(IN7, HIGH);
   digitalWrite(IN8, HIGH);
@@ -540,5 +572,168 @@ int graus(int x) { //Funçao 'graus' que recebe um valor Inteiro armazenado em '
 */
 
 void front_auto(){
-  
+  int distancia = lerSonar(); // Ler o sensor de distancia  
+    if (distancia > distanciaObstaculo) {  // Se a distancia for maior que 20 cm  
+      rotacao_Frente(); //robo anda para frente   
+    }else{   
+    rotacao_Parado();  //para o robo  
+    posicionaCarroMelhorCaminho(); //calcula o melhor caminho    
+    front_auto();    
+    }
 }
+
+// Funcao para ler e calcular a distancia do sensor ultrassonico    
+int lerSonar(){    
+  digitalWrite(trigPin, LOW); //nao envia som
+    delayMicroseconds(2);
+  digitalWrite(trigPin,HIGH); //envia som 
+    delayMicroseconds(10);
+  digitalWrite(trigPin,LOW); //nao envia o som e espera o retorno do som enviado
+      duracao = pulseIn(echoPin,HIGH); //Captura a duracao em tempo do retorno do som.
+      distancia_cm = duracao/56; //Calcula a distancia
+  delay(30);  
+return distancia_cm;             // Retorna a distancia  
+}
+   
+// Funcao para calcular a distancia do centro    
+int calcularDistanciaCentro(){    
+  parado(0);    
+    delay(20);   
+  int leituraDoSonar = lerSonar();// Ler sensor de distância  
+    delay(500);   
+  leituraDoSonar = lerSonar();   
+    delay(500);   
+return leituraDoSonar;// Retorna a distancia  
+}
+    
+// Funcao para calcular a distancia da direita    
+int calcularDistanciaDireita(){    
+  right();   
+   delay(200);  
+  int leituraDoSonar = lerSonar();   
+    delay(500);   
+  leituraDoSonar = lerSonar();   
+    delay(500);   
+return leituraDoSonar;    
+}
+    
+// Funcao para calcular a distancia da esquerda    
+int calcularDistanciaEsquerda(){    
+  left();   
+    delay(200);  
+  int leituraDoSonar = lerSonar();   
+    delay(500);   
+  leituraDoSonar = lerSonar();   
+    delay(500);   
+return leituraDoSonar;    
+}
+    
+// Funcao para captar as distancias lidas e calcular a melhor distancia    
+char calculaMelhorDistancia(){    
+  int esquerda = calcularDistanciaEsquerda();    
+  int centro = calcularDistanciaCentro();    
+  int direita = calcularDistanciaDireita();    
+    reposicionaServoSonar();    
+  int maiorDistancia = 0;   
+  char melhorDistancia = '0';     
+    if (centro > direita && centro > esquerda){    
+      melhorDistancia = 'c';    
+      maiorDistancia = centro;    
+    }else   
+    if (direita > centro && direita > esquerda){    
+      melhorDistancia = 'd';    
+      maiorDistancia = direita;    
+    }else  
+    if (esquerda > centro && esquerda > direita){    
+      melhorDistancia = 'e';    
+      maiorDistancia = esquerda;    
+    }    
+    if (maiorDistancia <= distanciaObstaculo) { //distancia limite para parar o robo   
+      rotacao_Re();    
+      posicionaCarroMelhorCaminho();    
+    }    
+    reposicionaServoSonar();  
+return melhorDistancia;    
+} 
+   
+// Funcao para colocar o carrinho na melhor distancia    
+void posicionaCarroMelhorCaminho(){    
+  char melhorDist = calculaMelhorDistancia();     
+  if (melhorDist == 'c'){    
+    front_auto();    
+  }else if (melhorDist == 'd'){    
+    rotacao_Direita();    
+  }else if (melhorDist == 'e'){    
+    rotacao_Esquerda();     
+  }else{    
+    rotacao_Re();    
+  }    
+  reposicionaServoSonar();    
+} 
+   
+// Funcao para deixar o sensor do robo no centro    
+void reposicionaServoSonar(){
+  parado(0);   
+  delay(200);   
+}    
+
+// Funcao para fazer o robo parar    
+void rotacao_Parado(){    
+  parado(0); 
+}    
+// Funcao para fazer o robo andar para frente    
+void rotacao_Frente(){    
+  front();    
+}    
+// Funcao que faz o robo andar para tras    
+void rotacao_Re(){
+  //Motor 1 tras robo:
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  //Motor 5(oposto) tras robo:
+  digitalWrite(IN10, LOW);
+  digitalWrite(IN9, HIGH);
+  //Motor 3 tras robo:
+  digitalWrite(IN5, LOW);
+  digitalWrite(IN6, HIGH);
+    delay(delay1);//Delay para iniciar o lado B
+  //Motor 4 tras robo:
+  digitalWrite(IN7, LOW);
+  digitalWrite(IN8, HIGH);
+  //Motor 2 tras robo:
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+  //Motor 6 tras robo:
+  digitalWrite(IN11, LOW);
+  digitalWrite(IN12, HIGH);
+    delay(delay2);//Delay para parar o lado A
+  //Motor 1 robo:
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, HIGH);
+  //Motor 5 robo:
+  digitalWrite(IN9, HIGH);
+  digitalWrite(IN10,HIGH);
+  //Motor 3 robo:
+  digitalWrite(IN5, HIGH);
+  digitalWrite(IN6, HIGH);
+    delay(delay3);//Delay para parar o lado B
+  //Motor 4 robo:
+  digitalWrite(IN7, HIGH);
+  digitalWrite(IN8, HIGH);
+  //Motor 2 robo:
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, HIGH);
+  //Motor 6 robo:
+  digitalWrite(IN11, HIGH);
+  digitalWrite(IN12, HIGH);
+    parado(0);//Chama a funacao parado que sincroniza as patas ao chao, com sentido para frente do robo    
+
+}    
+    
+void rotacao_Direita(){
+  right();    
+}    
+// Função que faz o robô virar à esquerda    
+void rotacao_Esquerda(){    
+  left();
+} 
