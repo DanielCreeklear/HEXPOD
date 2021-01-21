@@ -1,4 +1,4 @@
-/* ------------- MOVIMENTO PATAS VERSAO 2.3 ------------- 
+/* ------------- MOVIMENTO PATAS VERSAO 2.3.1 ------------- 
  *  Desenvolvedores: Daniel Lopes / Enrique Emanuel
  *  ETEC Martin Luther King
  *  Sao Paulo(SP), Brasil - 2019
@@ -133,6 +133,62 @@ void left(){     //Funcao que faz o Hexpod andar para frente
 void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe valor: sentido de rotacao, para sincronizar
   if(sentido == 0) {                    //Se sentido for 0, sincroniza as patas para tras do robo
 
+
+      //Sincronizar Motor 2:  
+      if(!digitalRead(sensorB)){    //Se o sensor B, localizado na porta 3, estiver ativado
+        pwm.setPWM(1, 0, graus(51));//Motor 1 parado
+      } else {                      //Se não
+          do{                       //Executa uma vez o que estiver dentro de "do"
+            pwm.setPWM(1, 0, graus(180));//Motor 1 gira com sentido para frente no robo 
+          }while(digitalRead(sensorB));//Enquanto sensor B estiver desativado ele executa "do"
+          if(!digitalRead(sensorB)){//Se o sensor B, localizado na porta 3, estiver ativado
+            pwm.setPWM(1, 0, graus(51));//Motor 1 parado
+          }                         //
+      }                             //
+
+
+      //Sincronizar Motor 5:
+      if(!digitalRead(sensorE)){
+        pwm.setPWM(4, 0, graus(51));
+      } else {
+          do{
+            pwm.setPWM(4, 0, graus(0));
+          } while(digitalRead(sensorE));
+          if(!digitalRead(sensorE)){
+            pwm.setPWM(4, 0, graus(51));
+          }
+      }
+
+
+
+      //Sincronizar Motor 6:
+      if(!digitalRead(sensorF)){
+        pwm.setPWM(5, 0, graus(51));
+      } else {
+          do{
+            pwm.setPWM(5, 0, graus(0));
+          }while(digitalRead(sensorF));
+          if(!digitalRead(sensorF)){
+            pwm.setPWM(5, 0, graus(51));
+          }
+      }
+
+
+      //Sincronizar Motor 3:
+      if(!digitalRead(sensorC)){    //Se o sensor C, localizado na porta 4, estiver ativado
+        pwm.setPWM(2, 0, graus(51));//Motor 2 parado
+      } else {                      //Se não
+          do{                       //Executa uma vez o que estiver dentro de "do"
+            pwm.setPWM(2, 0, graus(180));//Motor 2 gira com sentido para frente no robo
+          }while(digitalRead(sensorC));//Enquanto sensor B estiver desativado ele executa "do"
+          if(!digitalRead(sensorC)){//Se o sensor C, localizado na porta 4, estiver ativado
+            pwm.setPWM(2, 0, graus(51));//Motor 2 parado
+          }                         //
+      }                             //
+
+
+      
+
     //Sincronizar Motor 1:
       if(!digitalRead(sensorA)){    //Se o sensor A, localizado na porta 2, estiver ativado
         pwm.setPWM(0, 0, graus(51));//Motor 0 parado
@@ -145,31 +201,8 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
           }                         //
       }                             //
 
-
-    //Sincronizar Motor 2:  
-      if(!digitalRead(sensorB)){    //Se o sensor B, localizado na porta 3, estiver ativado
-        pwm.setPWM(1, 0, graus(51));//Motor 1 parado
-      } else {                      //Se não
-          do{                       //Executa uma vez o que estiver dentro de "do"
-            pwm.setPWM(1, 0, graus(180));//Motor 1 gira com sentido para frente no robo 
-          }while(digitalRead(sensorB));//Enquanto sensor B estiver desativado ele executa "do"
-          if(!digitalRead(sensorB)){//Se o sensor B, localizado na porta 3, estiver ativado
-            pwm.setPWM(1, 0, graus(51));//Motor 1 parado
-          }                         //
-      }                             //
-
       
-    //Sincronizar Motor 3:
-      if(!digitalRead(sensorC)){    //Se o sensor C, localizado na porta 4, estiver ativado
-        pwm.setPWM(2, 0, graus(51));//Motor 2 parado
-      } else {                      //Se não
-          do{                       //Executa uma vez o que estiver dentro de "do"
-            pwm.setPWM(2, 0, graus(180));//Motor 2 gira com sentido para frente no robo
-          }while(digitalRead(sensorC));//Enquanto sensor B estiver desativado ele executa "do"
-          if(!digitalRead(sensorC)){//Se o sensor C, localizado na porta 4, estiver ativado
-            pwm.setPWM(2, 0, graus(51));//Motor 2 parado
-          }                         //
-      }                             //
+    
 
       
     //Sincronizar Motor 4:               
@@ -185,49 +218,11 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
       }
 
 
-    //Sincronizar Motor 5:
-      if(!digitalRead(sensorE)){
-        pwm.setPWM(4, 0, graus(51));
-      } else {
-          do{
-            pwm.setPWM(4, 0, graus(0));
-          } while(digitalRead(sensorE));
-          if(!digitalRead(sensorE)){
-            pwm.setPWM(4, 0, graus(51));
-          }
-      }
-
-      
-    //Sincronizar Motor 6:
-      if(!digitalRead(sensorF)){
-        pwm.setPWM(5, 0, graus(51));
-      } else {
-          do{
-            pwm.setPWM(5, 0, graus(0));
-          }while(digitalRead(sensorF));
-          if(!digitalRead(sensorF)){
-            pwm.setPWM(5, 0, graus(51));
-          }
-      }
-
       
   }
   if(sentido == 1) {                    //Se sentido for 1, sincroniza as patas para direita do robo
 
 
-    //Sincronizar Motor 1:
-      if(!digitalRead(sensorA)){    //Se o sensor A, localizado na porta 2, estiver ativado
-        pwm.setPWM(0, 0, graus(51));//Motor 0 parado
-      } else {                      //Se não
-          do {                      //Executa uma vez o que estiver dentro de "do"
-            pwm.setPWM(0, 0, graus(180));//Motor 0 gira com sentido para frente no robo 
-          } while(digitalRead(sensorA));//Enquanto sensor A estiver desativado ele executa "do"
-          if(!digitalRead(sensorA)){//Se o sensor A, localizado na porta 2, estiver ativado
-            pwm.setPWM(0, 0, graus(51));//Motor 0 parado
-          }                         //
-      }                             //
-
-      
     //Sincronizar Motor 2:
       if(!digitalRead(sensorB)){    //Se o sensor B, localizado na porta 3, estiver ativado
         pwm.setPWM(1, 0, graus(51));//Motor 1 parado
@@ -241,34 +236,7 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
       }                             //
 
 
-
-    //Sincronizar Motor 3:
-      if(!digitalRead(sensorC)){    //Se o sensor C, localizado na porta 4, estiver ativado
-        pwm.setPWM(2, 0, graus(51));//Motor 2 parado
-      } else {                      //Se não
-          do{                       //Executa uma vez o que estiver dentro de "do"
-            pwm.setPWM(2, 0, graus(180));//Motor 2 gira com sentido para frente no robo
-          }while(digitalRead(sensorC));//Enquanto sensor B estiver desativado ele executa "do"
-          if(!digitalRead(sensorC)){//Se o sensor C, localizado na porta 4, estiver ativado
-            pwm.setPWM(2, 0, graus(51));//Motor 2 parado
-          }                         //
-      }                             //
-
-      
-    //Sincronizar Motor 4:
-      if(!digitalRead(sensorD)){
-        pwm.setPWM(3, 0, graus(51));
-      } else {
-          do{
-            pwm.setPWM(3, 0, graus(180));
-          }while(digitalRead(sensorD));
-          if(!digitalRead(sensorD)){
-            pwm.setPWM(3, 0, graus(51));
-          }
-      }
-
-      
-    //Sincronizar Motor 5:
+      //Sincronizar Motor 5:
       if(!digitalRead(sensorE)){
         pwm.setPWM(4, 0, graus(51));
       } else {
@@ -280,8 +248,8 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
           }
       }
 
-      
-    //Sincronizar Motor 6:
+
+      //Sincronizar Motor 6:
       if(!digitalRead(sensorF)){
         pwm.setPWM(5, 0, graus(51));
       } else {
@@ -294,10 +262,102 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
       }
 
 
+      //Sincronizar Motor 3:
+      if(!digitalRead(sensorC)){    //Se o sensor C, localizado na porta 4, estiver ativado
+        pwm.setPWM(2, 0, graus(51));//Motor 2 parado
+      } else {                      //Se não
+          do{                       //Executa uma vez o que estiver dentro de "do"
+            pwm.setPWM(2, 0, graus(180));//Motor 2 gira com sentido para frente no robo
+          }while(digitalRead(sensorC));//Enquanto sensor B estiver desativado ele executa "do"
+          if(!digitalRead(sensorC)){//Se o sensor C, localizado na porta 4, estiver ativado
+            pwm.setPWM(2, 0, graus(51));//Motor 2 parado
+          }                         //
+      }                             //
+
+
       
+    //Sincronizar Motor 1:
+      if(!digitalRead(sensorA)){    //Se o sensor A, localizado na porta 2, estiver ativado
+        pwm.setPWM(0, 0, graus(51));//Motor 0 parado
+      } else {                      //Se não
+          do {                      //Executa uma vez o que estiver dentro de "do"
+            pwm.setPWM(0, 0, graus(180));//Motor 0 gira com sentido para frente no robo 
+          } while(digitalRead(sensorA));//Enquanto sensor A estiver desativado ele executa "do"
+          if(!digitalRead(sensorA)){//Se o sensor A, localizado na porta 2, estiver ativado
+            pwm.setPWM(0, 0, graus(51));//Motor 0 parado
+          }                         //
+      }                             //
+
+      
+      
+    //Sincronizar Motor 4:
+      if(!digitalRead(sensorD)){
+        pwm.setPWM(3, 0, graus(51));
+      } else {
+          do{
+            pwm.setPWM(3, 0, graus(180));
+          }while(digitalRead(sensorD));
+          if(!digitalRead(sensorD)){
+            pwm.setPWM(3, 0, graus(51));
+          }
+      }
   }
   
   if(sentido == 3) {                    //Se sentido for 0, sincroniza as patas para esquerda do robo
+
+
+    //Sincronizar Motor 2:
+      if(!digitalRead(sensorB)){    //Se o sensor B, localizado na porta 3, estiver ativado
+        pwm.setPWM(1, 0, graus(51));//Motor 1 parado
+      } else {                      //Se não
+          do{                       //Executa uma vez o que estiver dentro de "do"
+            pwm.setPWM(1, 0, graus(180));//Motor 1 gira com sentido para frente no robo 
+          }while(digitalRead(sensorB));//Enquanto sensor B estiver desativado ele executa "do"
+          if(!digitalRead(sensorB)){//Se o sensor B, localizado na porta 3, estiver ativado
+            pwm.setPWM(1, 0, graus(51));//Motor 1 parado
+          }                         //
+      }                             //
+
+
+      //Sincronizar Motor 5:
+      if(!digitalRead(sensorE)){
+        pwm.setPWM(4, 0, graus(51));
+      } else {
+          do{
+            pwm.setPWM(4, 0, graus(180));
+          } while(digitalRead(sensorE));
+          if(!digitalRead(sensorE)){
+            pwm.setPWM(4, 0, graus(51));
+          }
+      }
+
+
+      //Sincronizar Motor 6:
+      if(!digitalRead(sensorF)){
+        pwm.setPWM(5, 0, graus(51));
+      } else {
+          do{
+            pwm.setPWM(5, 0, graus(0));
+          }while(digitalRead(sensorF));
+          if(!digitalRead(sensorF)){
+            pwm.setPWM(5, 0, graus(51));
+          }
+      }
+
+
+
+  //Sincronizar Motor 3:
+      if(!digitalRead(sensorC)){    //Se o sensor C, localizado na porta 4, estiver ativado
+        pwm.setPWM(2, 0, graus(51));//Motor 2 parado
+      } else {                      //Se não
+          do{                       //Executa uma vez o que estiver dentro de "do"
+            pwm.setPWM(2, 0, graus(0));//Motor 2 gira com sentido para tras no robo
+          }while(digitalRead(sensorC));//Enquanto sensor B estiver desativado ele executa "do"
+          if(!digitalRead(sensorC)){//Se o sensor C, localizado na porta 4, estiver ativado
+            pwm.setPWM(2, 0, graus(51));//Motor 2 parado
+          }                         //
+      }                             //
+
 
 
     //Sincronizar Motor 1:
@@ -312,33 +372,8 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
           }                         //
       }                             //
 
-      
-    //Sincronizar Motor 2:
-      if(!digitalRead(sensorB)){    //Se o sensor B, localizado na porta 3, estiver ativado
-        pwm.setPWM(1, 0, graus(51));//Motor 1 parado
-      } else {                      //Se não
-          do{                       //Executa uma vez o que estiver dentro de "do"
-            pwm.setPWM(1, 0, graus(180));//Motor 1 gira com sentido para frente no robo 
-          }while(digitalRead(sensorB));//Enquanto sensor B estiver desativado ele executa "do"
-          if(!digitalRead(sensorB)){//Se o sensor B, localizado na porta 3, estiver ativado
-            pwm.setPWM(1, 0, graus(51));//Motor 1 parado
-          }                         //
-      }                             //
 
       
-    //Sincronizar Motor 3:
-      if(!digitalRead(sensorC)){    //Se o sensor C, localizado na porta 4, estiver ativado
-        pwm.setPWM(2, 0, graus(51));//Motor 2 parado
-      } else {                      //Se não
-          do{                       //Executa uma vez o que estiver dentro de "do"
-            pwm.setPWM(2, 0, graus(0));//Motor 2 gira com sentido para tras no robo
-          }while(digitalRead(sensorC));//Enquanto sensor B estiver desativado ele executa "do"
-          if(!digitalRead(sensorC)){//Se o sensor C, localizado na porta 4, estiver ativado
-            pwm.setPWM(2, 0, graus(51));//Motor 2 parado
-          }                         //
-      }                             //
-
-
     //Sincronizar Motor 4:
       if(!digitalRead(sensorD)){
         pwm.setPWM(3, 0, graus(51));
@@ -350,36 +385,7 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
             pwm.setPWM(3, 0, graus(51));
           }
       }
-
-      
-    //Sincronizar Motor 5:
-      if(!digitalRead(sensorE)){
-        pwm.setPWM(4, 0, graus(51));
-      } else {
-          do{
-            pwm.setPWM(4, 0, graus(180));
-          } while(digitalRead(sensorE));
-          if(!digitalRead(sensorE)){
-            pwm.setPWM(4, 0, graus(51));
-          }
-      }
-
-      
-    //Sincronizar Motor 6:
-      if(!digitalRead(sensorF)){
-        pwm.setPWM(5, 0, graus(51));
-      } else {
-          do{
-            pwm.setPWM(5, 0, graus(0));
-          }while(digitalRead(sensorF));
-          if(!digitalRead(sensorF)){
-            pwm.setPWM(5, 0, graus(51));
-          }
-      }
   }
-
-
-  
 }
   
 int graus(int x) {                                                                      //Funçao 'graus' que recebe um valor Inteiro armazenado em 'x'                                                            
