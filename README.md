@@ -10,12 +10,7 @@ Serial.print("ESTOU VIVO!");
 ``` 
 :laughing:
 ## Grupo
-[<img src="https://media-exp1.licdn.com/dms/image/C4D03AQHlBPAHLrBLDw/profile-displayphoto-shrink_800_800/0/1580769894379?e=1616630400&v=beta&t=81eUPy0GajTr6YGD6_qxNMz62uZwOgi-Hl4MaT2J07w" width=115 > <br> <sub> Allan Del Valle </sub> ](https://www.linkedin.com/in/allan-del-valle-1b8012140/) |
-| :---: |  
-[<img src="https://avatars1.githubusercontent.com/u/50249010?s=400&u=bcc195f038417817f21c9b38e0c145c34ccc76e5&v=4" width=115 > <br> <sub> Daniel Lopes Soares </sub>](https://github.com/DanielCreeklear) |
-| :---: |  
 
-* _ENRIQUE EMANUEL REZENDE TAVARES DA SILVA_ - @Oiapokxui
 * _GABRIEL LUÍS FRUTUOSO_
 ## Resumo
   Inspirado em um dos [robôs](https://www.youtube.com/watch?v=ISznqY3kESI) criados pela Boston Dynamics, o projeto se resume a um robô hexápode cujo propósito é ser remotamente controlado, útil em ambientes que inviabilizam o uso das rodas. Surge da necessidade de um robô que percorresse a maioria dos terrenos sem muitas dificuldades. Para isso, constitui-se de seis patas com o formato ‘C’, que garante uma boa mobilidade. Com controle por rádio frequência, também inclui uma câmera sem fio, que permite monitoramento a distância e auxilia o controle dos movimentos executados pelo  robô. O  projeto  foi  construído  inteiramente  por  observações  de material  audiovisual.
@@ -27,10 +22,7 @@ Serial.print("ESTOU VIVO!");
 
 :trophy: Sensor Ultrassônico para navegação autônoma
 
-|  
-[ |
-| :---: |  
 
-|[<img src="https://media-exp1.licdn.com/dms/image/C4D03AQHlBPAHLrBLDw/profile-displayphoto-shrink_800_800/0/1580769894379?e=1616630400&v=beta&t=81eUPy0GajTr6YGD6_qxNMz62uZwOgi-Hl4MaT2J07w" width=115 > <br> <sub> Allan Del Valle </sub>](https://www.linkedin.com/in/allan-del-valle-1b8012140/)|[<img src="https://avatars1.githubusercontent.com/u/50249010?s=400&u=bcc195f038417817f21c9b38e0c145c34ccc76e5&v=4" width=115 > <br> <sub> Daniel Lopes Soares </sub>](https://github.com/DanielCreeklear)|   	|   	|
+|[<img src="https://media-exp1.licdn.com/dms/image/C4D03AQHlBPAHLrBLDw/profile-displayphoto-shrink_800_800/0/1580769894379?e=1616630400&v=beta&t=81eUPy0GajTr6YGD6_qxNMz62uZwOgi-Hl4MaT2J07w" width=115 > <br> <sub> Allan Del Valle </sub>](https://www.linkedin.com/in/allan-del-valle-1b8012140/)|[<img src="https://avatars1.githubusercontent.com/u/50249010?s=400&u=bcc195f038417817f21c9b38e0c145c34ccc76e5&v=4" width=115 > <br> <sub> Daniel Lopes Soares </sub>](https://github.com/DanielCreeklear)|[<img src="https://avatars3.githubusercontent.com/u/61894952?s=460&u=cc9828934d213c5cd4ef2dc9b5a6223878803eb9&v=4" width=115 > <br> <sub> Enrique Emanuel Rezende Tavares da Silva </sub>](https://github.com/Oiapokxui)   	|   	|
 |:-:	|:-:	|:-:	|:-:	|
 
