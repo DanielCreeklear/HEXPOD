@@ -28,7 +28,7 @@ Serial.print("ESTOU VIVO!");
 :trophy: Sensor Ultrassônico para navegação autônoma
 
 | [<img src="https://media-exp1.licdn.com/dms/image/C4D03AQHlBPAHLrBLDw/profile-displayphoto-shrink_800_800/0/1580769894379?e=1616630400&v=beta&t=81eUPy0GajTr6YGD6_qxNMz62uZwOgi-Hl4MaT2J07w" width=115 > <br> <sub> Allan Del Valle </sub> ](https://www.linkedin.com/in/allan-del-valle-1b8012140/) |
-| :---: | [<img src="https://avatars1.githubusercontent.com/u/50249010?s=400&u=bcc195f038417817f21c9b38e0c145c34ccc76e5&v=4" width=115 > <br> <sub> Daniel Lopes Soares </sub>](https://github.com/DanielCreeklear) |
+| :---: | | [<img src="https://avatars1.githubusercontent.com/u/50249010?s=400&u=bcc195f038417817f21c9b38e0c145c34ccc76e5&v=4" width=115 > <br> <sub> Daniel Lopes Soares </sub>](https://github.com/DanielCreeklear) |
 | :---: |  
 
 
