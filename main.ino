@@ -1,4 +1,4 @@
-/* ------------- MOVIMENTO PATAS VERSAO 2.1 ------------- 
+/* ------------- MOVIMENTO PATAS VERSAO 2.2 ------------- 
  *  Desenvolvedores: Daniel Lopes / Enrique Emanuel
  *  ETEC Martin Luther King
  *  Sao Paulo(SP), Brasil - 2019
@@ -38,8 +38,8 @@ void  left();
 void  parado();
 
 void setup() {
-
-  Serial.begin(9600);
+  
+  Bluetooth.begin(9600);
   pwm.begin();                                                                          //Inicia o controle dos servos(PWM)
   pwm.setPWMFreq(50);                                                                   //Frequencia de comunicaçao com o driver em 50Hz
 
@@ -48,9 +48,23 @@ void setup() {
 }
 
 void loop() {
-  delay(2000);    //Delay antes de iniciar a andar para melhor visualizacao
-  front();        //Chama a funcao front, que faz o Hexpod andar para a frente
-  delay(5000);    //Delay para atrasar mais o loop do arduino
+  bluetooth = Bluetooth.read();
+  switch (bluetooth) {
+        case 'W':
+          front();
+        break;
+        
+        case 'A':
+          left();
+        break;
+
+        case 'D':
+          right();
+        break;
+        
+        default:
+        parado(0);          
+      }
 }
 
 void front(){     //Funcao que faz o Hexpod andar para frente
