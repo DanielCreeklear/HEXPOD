@@ -32,5 +32,9 @@ Serial.print("ESTOU VIVO!");
 [<img src="https://avatars1.githubusercontent.com/u/50249010?s=400&u=bcc195f038417817f21c9b38e0c145c34ccc76e5&v=4" width=115 > <br> <sub> Daniel Lopes Soares </sub>](https://github.com/DanielCreeklear) |
 | :---: |  
 
-| :---: |  | :---: |  | :---: |  | :---: |  
+|   	|   	|   	|   	|   	|
+|---	|---	|---	|---	|---	|
+|   	|   	|   	|   	|   	|
+|   	|   	|   	|   	|   	|
+|   	|   	|   	|   	|   	|
 
