@@ -1,4 +1,4 @@
-/* ------------- MOVIMENTO PATAS VERSAO 2.3.3 ------------- 
+/* ------------- MOVIMENTO PATAS VERSAO 2.3.4 ------------- 
  *  Desenvolvedores: Daniel Lopes / Enrique Emanuel
  *  ETEC Martin Luther King
  *  Sao Paulo(SP), Brasil - 2019
@@ -7,7 +7,6 @@
  *  
  */
 //Bibliotecas
-#include <VirtualWire.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 #include <SoftwareSerial.h>
@@ -67,44 +66,14 @@ void setup() {
   pwm.setPWMFreq(50); //Frequencia de comunicaçao com o driver em 50Hz
 
   for(int i = 0; i<7; i++) pinMode(motores[i] , INPUT_PULLUP); //Portas 2 - 8 como entradas com resistor Pullup
-  set_p = 0;
 
-  vw_set_rx_pin(pinRF);
-  vw_setup(2000);   
-  vw_rx_start();
+  //vw_set_rx_pin(pinRF);
+  //vw_setup(2000);   
+  //vw_rx_start();
 }
 
 void loop() {
-   //Controle-----------------------------------------
-  if(!set_p) {
-    parado(0);
-    set_p = 1;
-  }
-  if (vw_have_message()){
-   vw_get_message(buf, &buflen);   
-   memcpy(&pacote,&buf,buflen);
-    switch (pacote.valor1) {
-          case 'W':
-            front();
-          break;
-
-          case 'Z':
-            front();
-          break;
-          
-          case 'A':
-            left();
-          break;
-  
-          case 'D':
-            right();
-          break;
-  
-          case 'C':
-            parado(0);
-          break;                   
-    }
-  }
+  front();
 }
 
 void front(){     //Funcao que faz o Hexpod andar para frente
@@ -117,7 +86,7 @@ void front(){     //Funcao que faz o Hexpod andar para frente
   pwm.setPWM(5, 0, graus(0));       //Motor 5 gira com sentido para frente no robo
   delay(delay2);                       //Delay para parar o lado A
   pwm.setPWM(0, 0, graus(51));      //Motor 0 parado
-  pwm.setPWM(4, 0, graus(51));      //Motor 4 parado
+  pwm.setPWM(4, 0, graus(56));      //Motor 4 parado
   pwm.setPWM(2, 0, graus(51));      //Motor 2 parado
   int a = delay1 - delay2;
   delay(a);                       //Delay para parar o lado B
@@ -190,13 +159,13 @@ void parado(int sentido){       //Funcao que sincroniza as patas no chao, recebe
 
       //Sincronizar Motor 5:
       if(!digitalRead(sensorE)){
-        pwm.setPWM(4, 0, graus(51));
+        pwm.setPWM(4, 0, graus(56));
       } else {
           do{
             pwm.setPWM(4, 0, graus(0));
           } while(digitalRead(sensorE));
           if(!digitalRead(sensorE)){
-            pwm.setPWM(4, 0, graus(51));
+            pwm.setPWM(4, 0, graus(56));
           }
       }
 
