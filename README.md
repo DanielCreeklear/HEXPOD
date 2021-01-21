@@ -26,6 +26,6 @@ Serial.print("ESTOU VIVO!");
 
 - [C/C++ (Arduino)](https://www.arduino.cc/)
 - VirtualWire 1.27
-## Diagramas :page_with_curl:
+## Diagramas e desenhos :page_with_curl:
 
 
