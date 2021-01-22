@@ -1,4 +1,4 @@
-/* ------------- CONTROLE HEXPOD VERSÃO 1.2 HC-05 ------------- 
+/* ------------- CONTROLE HEXPOD VERSÃO 0.4 ------------- 
  *  Desenvolvedores: Daniel Lopes
  *  ETEC Martin Luther King
  *  São Paulo(SP), Brasil - 2019
