@@ -1,4 +1,4 @@
-/* ------------- CONTROLE HEXPOD VERSÃO 0.2 ------------- 
+/* ------------- CONTROLE HEXPOD VERSÃO 0.3 ------------- 
  *  Desenvolvedores: Daniel Lopes
  *  ETEC Martin Luther King
  *  São Paulo(SP), Brasil - 2019
@@ -6,7 +6,9 @@
  *  
  */
 
+#include <Wire.h>
 #include <SoftwareSerial.h>                                               //Biblioteca do Serial Emulado
+#include <LiquidCrystal_I2C.h>
  
 #define X     A0                                                          //Analógico horizontal(X)
 #define Y     A1                                                          //Analógico vertical(Y)
@@ -18,19 +20,47 @@
 #define B      3                                                          //Botão B
 #define Z      2                                                          //Botão Z
 
-SoftwareSerial BT_MasterHC05(11, 12);                                    //Declarando nome da serial emulada com RX = 11 / TX  = 12
+//SoftwareSerial BT_MasterHC05(11, 12);                                    //Declarando nome da serial emulada com RX = 11 / TX  = 12
+LiquidCrystal_I2C lcd(0x27,2,1,0,4,5,6,7,3, POSITIVE);
 
                                                                
                                                             
 
 void setup() {
+  lcd.begin (16,2);
   Serial.begin (9600);                                                  //Iniciando comunicação Serial para o USB em 9600               
-  BT_MasterHC05.begin(9600);                                             //Iniciando comunicação Serial("BT_MasterHC05") para o módulo HC-06 em 9600
+//BT_MasterHC05.begin(9600);                                             //Iniciando comunicação Serial("BT_MasterHC05") para o módulo HC-06 em 9600
 
   pinMode(X , INPUT);                                                    //A0 entrada analógica
   pinMode(Y , INPUT);                                                    //A1 entrada analógica
   for(int i = 2; i<9; i++) pinMode(i , INPUT_PULLUP);                    //Portas 2 - 8 como entradas com resistor Pullup
+
+  lcd.setBacklight(HIGH);
+  lcd.setCursor(0,0);
+  lcd.print("   Conectando   ");
+  lcd.setCursor(0,1);
+  lcd.print("  ao HEXPOD...  ");
   
+  while(!Serial.available()){
+    
+  }
+  Serial.println('9');
+  Serial.write('9');
+  lcd.setCursor(0,0);
+  lcd.print("   Conectado!   ");
+  lcd.setCursor(0,1);
+  lcd.print("                ");
+  delay(400);
+  lcd.setCursor(0,0);
+  lcd.print("Controle versão:");
+  lcd.setCursor(0,1);
+  lcd.print("      1.2       ");
+  delay(800);
+  lcd.setCursor(0,0);
+  lcd.print(" HEXPOD versão: ");
+  lcd.setCursor(0,1);
+  lcd.print("      2.2       ");
+  delay(600);
 
 }
 
@@ -38,73 +68,103 @@ void loop() {
   int x_read = analogRead(X);                                        //Armazena o valor do Eixo X (0 - 1024)
   int y_read = analogRead(Y);                                        //Armazena o valor do Eixo Y (0 - 1024)
 
+  lcd.setCursor(0,0);
+  lcd.print("Aperte um botão!");
+  lcd.setCursor(0,1);
+  lcd.print("----------------");
+
     if ( x_read < 350 && y_read > 200 && y_read < 800) {             //Se Analógico for para esquerda com o eixo Y sem se mover
       char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
       sendBT = 'A';                                                 //Valor a ser armazenado pela variável 'sendBT'                            
-      BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
+    //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
       Serial.println(sendBT);
+      Serial.write(sendBT);
+      lcd.setCursor(0,0);
+      lcd.print("  Virando para  ");
+      lcd.setCursor(0,1);
+      lcd.print("    esquerda    ");
     }
     if ( x_read > 650 && y_read > 200 && y_read < 800) {             //Se Analógico for para direita com o eixo Y sem se mover
       char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
       sendBT = 'D';                                                 //Valor a ser armazenado pela variável 'sendBT'                            
-      BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
+    //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
       Serial.println(sendBT);
+      Serial.write(sendBT);
+      lcd.setCursor(0,0);
+      lcd.print("  Virando para  ");
+      lcd.setCursor(0,1);
+      lcd.print("    direita     ");
     }
     if ( y_read < 350 && x_read > 200 && x_read < 800) {             //Se Analógico for para cima com o eixo X sem se mover
       char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
       sendBT = 'S';                                                 //Valor a ser armazenado pela variável 'sendBT'                            
-      BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
+    //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
       Serial.println(sendBT);
+      Serial.write(sendBT);
+      lcd.setCursor(0,0);
+      lcd.print("  Virando para  ");
+      lcd.setCursor(0,1);
+      lcd.print("      trás      ");
     }
     if ( y_read > 650 && x_read > 200 && x_read < 800) {             //Se Analógico for para baixo com o eixo X sem se mover
       char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
       sendBT = 'W';                                                 //Valor a ser armazenado pela variável 'sendBT'                            
-      BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
+    //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
       Serial.println(sendBT);
+      Serial.write(sendBT);
+      lcd.print("  Andando para  ");
+      lcd.setCursor(0,1);
+      lcd.print("     frente     ");
     }
   
-      while (!digitalRead(K)) {                                    //Enquanto o botão for pressionado
+      if (!digitalRead(K)) {                                    //Enquanto o botão for pressionado
          char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
          sendBT = 'K';                                                 //Valor a ser armazenado pela variável 'sendBT'                            
-         BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
+       //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
          Serial.println(sendBT);
+         Serial.write(sendBT);
       }
-      while (!digitalRead(F)) {                                    //Enquanto o botão for pressionado
+      if (!digitalRead(F)) {                                    //Enquanto o botão for pressionado
          char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
          sendBT = 'F';                                                 //Valor a ser armazenado pela variável 'sendBT'                            
-         BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
+       //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
          Serial.println(sendBT);
+         Serial.write(sendBT);
       }
-      while (!digitalRead(E)) {                                    //Enquanto o botão for pressionado
+      if (!digitalRead(E)) {                                    //Enquanto o botão for pressionado
          char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
          sendBT = 'E';                                                 //Valor a ser armazenado pela variável 'sendBT'                            
-         BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
+       //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
          Serial.println(sendBT);
+         Serial.write(sendBT);
       }
-      while (!digitalRead(G)) {                                    //Enquanto o botão for pressionado
+      if (!digitalRead(G)) {                                    //Enquanto o botão for pressionado
          char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
          sendBT = 'G';                                                 //Valor a ser armazenado pela variável 'sendBT'                            
-         BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
+       //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
          Serial.println(sendBT);
+         Serial.write(sendBT);
       }
-      while (!digitalRead(C)) {                                    //Enquanto o botão for pressionado
+      if (!digitalRead(C)) {                                    //Enquanto o botão for pressionado
          char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
          sendBT = 'C';                                                 //Valor a ser armazenado pela variável 'sendBT'                            
-         BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
+       //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
          Serial.println(sendBT);
+         Serial.write(sendBT);
       }
-      while (!digitalRead(B)) {                                    //Enquanto o botão for pressionado
+      if (!digitalRead(B)) {                                    //Enquanto o botão for pressionado
          char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
          sendBT = 'B';                                                 //Valor a ser armazenado pela variável 'sendBT'                            
-         BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
+       //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
          Serial.println(sendBT);
+         Serial.write(sendBT);
       }
-      while (!digitalRead(Z)) {                                    //Enquanto o botão for pressionado
+      if (!digitalRead(Z)) {                                    //Enquanto o botão for pressionado
          char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
          sendBT = 'Z';                                                 //Valor a ser armazenado pela variável 'sendBT'                            
-         BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
+       //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
          Serial.println(sendBT);
+         Serial.write(sendBT);
       }
-                                                                               
-  delay(10);                                                          //Atraso para sincronia  
+
 }
