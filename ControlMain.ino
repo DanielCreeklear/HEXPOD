@@ -1,4 +1,4 @@
-/* ------------- CONTROLE HEXPOD VERSÃO 0.4 ------------- 
+/* ------------- CONTROLE HEXPOD VERSÃO 1.0 ------------- 
  *  Desenvolvedores: Daniel Lopes
  *  ETEC Martin Luther King
  *  São Paulo(SP), Brasil - 2019
@@ -21,10 +21,7 @@
 #define pinRF  12
 #define pinLED 13
 
-struct tipoPacote {
-  char valor1;
-};
-tipoPacote pacote; 
+char valor1; 
 
 //SoftwareSerial BT_MasterHC05(11, 12);                                    //Declarando nome da serial emulada com RX = 11 / TX  = 12
 LiquidCrystal_I2C lcd(0x27,2,1,0,4,5,6,7,3, POSITIVE);
@@ -67,8 +64,8 @@ void loop() {
     if ( x_read < 350 && y_read > 200 && y_read < 800) {             //Se Analógico for para esquerda com o eixo Y sem se mover
       char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
       sendBT = 'A';                                                 //Valor a ser armazenado pela variável 'sendBT'
-      pacote.valor1 = sendBT;
-      vw_send((uint8_t *)&pacote, sizeof(pacote));
+      valor1 = sendBT;
+      vw_send((uint8_t *)valor1, strlen(valor1));
       vw_wait_tx();
       digitalWrite(pinLED, LOW);                             
     //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
@@ -82,8 +79,8 @@ void loop() {
     if ( x_read > 650 && y_read > 200 && y_read < 800) {             //Se Analógico for para direita com o eixo Y sem se mover
       char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
       sendBT = 'D';                                                 //Valor a ser armazenado pela variável 'sendBT'
-      pacote.valor1 = sendBT;
-      vw_send((uint8_t *)&pacote, sizeof(pacote));
+      valor1 = sendBT;
+      vw_send((uint8_t *)valor1, strlen(valor1));
       vw_wait_tx();
       digitalWrite(pinLED, LOW);                              
     //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
@@ -97,8 +94,8 @@ void loop() {
     if ( y_read < 350 && x_read > 200 && x_read < 800) {             //Se Analógico for para cima com o eixo X sem se mover
       char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
       sendBT = 'S';                                                 //Valor a ser armazenado pela variável 'sendBT'
-      pacote.valor1 = sendBT;
-      vw_send((uint8_t *)&pacote, sizeof(pacote));
+      valor1 = sendBT;
+      vw_send((uint8_t *)valor1, strlen(valor1));
       vw_wait_tx();
       digitalWrite(pinLED, LOW);                              
     //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
@@ -112,8 +109,8 @@ void loop() {
     if ( y_read > 650 && x_read > 200 && x_read < 800) {             //Se Analógico for para baixo com o eixo X sem se mover
       char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
       sendBT = 'W';                                                 //Valor a ser armazenado pela variável 'sendBT'
-      pacote.valor1 = sendBT;
-      vw_send((uint8_t *)&pacote, sizeof(pacote));
+      valor1 = sendBT;
+      vw_send((uint8_t *)valor1, strlen(valor1));
       vw_wait_tx();
       digitalWrite(pinLED, LOW);                              
     //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
@@ -127,9 +124,9 @@ void loop() {
       if (!digitalRead(K)) {                                    //Enquanto o botão for pressionado
          char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
          sendBT = 'K';                                                 //Valor a ser armazenado pela variável 'sendBT'
-         pacote.valor1 = sendBT;
-         vw_send((uint8_t *)&pacote, sizeof(pacote));
-         vw_wait_tx();
+         valor1 = sendBT;
+          vw_send((uint8_t *)valor1, strlen(valor1));
+          vw_wait_tx();
          digitalWrite(pinLED, LOW);                              
        //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
        //Serial.println(sendBT);
@@ -138,9 +135,9 @@ void loop() {
       if (!digitalRead(F)) {                                    //Enquanto o botão for pressionado
          char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
          sendBT = 'F';                                                 //Valor a ser armazenado pela variável 'sendBT'
-         pacote.valor1 = sendBT;
-         vw_send((uint8_t *)&pacote, sizeof(pacote));
-         vw_wait_tx();
+         valor1 = sendBT;
+      vw_send((uint8_t *)valor1, strlen(valor1));
+      vw_wait_tx();
          digitalWrite(pinLED, LOW);                              
        //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
        //Serial.println(sendBT);
@@ -149,9 +146,9 @@ void loop() {
       if (!digitalRead(E)) {                                    //Enquanto o botão for pressionado
          char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
          sendBT = 'E';                                                 //Valor a ser armazenado pela variável 'sendBT'
-         pacote.valor1 = sendBT;
-         vw_send((uint8_t *)&pacote, sizeof(pacote));
-         vw_wait_tx();
+         valor1 = sendBT;
+      vw_send((uint8_t *)valor1, strlen(valor1));
+      vw_wait_tx();
          digitalWrite(pinLED, LOW);                              
        //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
        //Serial.println(sendBT);
@@ -160,9 +157,9 @@ void loop() {
       if (!digitalRead(G)) {                                    //Enquanto o botão for pressionado
          char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
          sendBT = 'G';                                                 //Valor a ser armazenado pela variável 'sendBT'
-         pacote.valor1 = sendBT;
-         vw_send((uint8_t *)&pacote, sizeof(pacote));
-         vw_wait_tx();
+         valor1 = sendBT;
+      vw_send((uint8_t *)valor1, strlen(valor1));
+      vw_wait_tx();
          digitalWrite(pinLED, LOW);                              
        //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
        //Serial.println(sendBT);
@@ -171,9 +168,9 @@ void loop() {
       if (!digitalRead(C)) {                                    //Enquanto o botão for pressionado
          char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
          sendBT = 'C';                                                 //Valor a ser armazenado pela variável 'sendBT'
-         pacote.valor1 = sendBT;
-         vw_send((uint8_t *)&pacote, sizeof(pacote));
-         vw_wait_tx();
+         valor1 = sendBT;
+      vw_send((uint8_t *)valor1, strlen(valor1));
+      vw_wait_tx();
          digitalWrite(pinLED, LOW);                              
        //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
        //Serial.println(sendBT);
@@ -182,9 +179,9 @@ void loop() {
       if (!digitalRead(B)) {                                    //Enquanto o botão for pressionado
          char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
          sendBT = 'B';                                                 //Valor a ser armazenado pela variável 'sendBT'
-         pacote.valor1 = sendBT;
-         vw_send((uint8_t *)&pacote, sizeof(pacote));
-         vw_wait_tx();
+         valor1 = sendBT;
+      vw_send((uint8_t *)valor1, strlen(valor1));
+      vw_wait_tx();
          digitalWrite(pinLED, LOW);                              
        //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
        //Serial.println(sendBT);
@@ -193,9 +190,9 @@ void loop() {
       if (!digitalRead(Z)) {                                    //Enquanto o botão for pressionado
          char sendBT;                                                   //Variável em caractere para armezenar valores ENVIADOS via Bluetooth                                 
          sendBT = 'Z';                                                 //Valor a ser armazenado pela variável 'sendBT'
-         pacote.valor1 = sendBT;
-         vw_send((uint8_t *)&pacote, sizeof(pacote));
-         vw_wait_tx();
+         valor1 = sendBT;
+      vw_send((uint8_t *)valor1, strlen(valor1));
+      vw_wait_tx();
          digitalWrite(pinLED, LOW);                             
        //BT_MasterHC05.write(sendBT);                                  //Envia o que está escrito em 'sendBT'
        //Serial.println(sendBT);
